@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>egov</groupId>
+    <artifactId>template-simple</artifactId>
+    <version>1.0.2</version>
+  </parent>
+  <artifactId>koroad-auth</artifactId>
+  <packaging>jar</packaging>
+  
+  <properties>
+    <spring.maven.artifact.version>5.3.27</spring.maven.artifact.version>
+    <org.egovframe.rte.version>4.2.0</org.egovframe.rte.version>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.egovframe.rte</groupId>
+      <artifactId>org.egovframe.rte.fdl.security</artifactId>
+      <version>4.2.0</version>
+    </dependency>
+    
+    <!-- Spring Security -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>5.8.3</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+      <version>5.8.3</version>
+    </dependency>
+    
+	<!-- Thymeleaf -->
+    <dependency>
+        <groupId>org.thymeleaf</groupId>
+        <artifactId>thymeleaf</artifactId>
+        <version>3.0.15.RELEASE</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.thymeleaf</groupId>
+        <artifactId>thymeleaf-spring5</artifactId>
+        <version>3.0.15.RELEASE</version>
+    </dependency>  
+
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+        <scope>provided</scope> 
+    </dependency>
+          
+  </dependencies>
+  
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <directory>${basedir}/target</directory>
+    <finalName>koroad-auth-${project.version}</finalName>
+  </build>  
+</project>
