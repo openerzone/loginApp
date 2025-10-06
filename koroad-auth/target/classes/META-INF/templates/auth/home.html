@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈 - Spring Security</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        .main-container {
+            padding-top: 80px;
+        }
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .welcome-header h1 {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .welcome-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .user-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .user-info h5 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .user-info .badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .feature-icon.security {
+            color: #28a745;
+        }
+        .feature-icon.authentication {
+            color: #007bff;
+        }
+        .feature-icon.session {
+            color: #ffc107;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-shield-alt me-2"></i>Spring Security
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/home}">
+                            <i class="fas fa-home me-1"></i>홈
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/admin}">
+                            <i class="fas fa-cog me-1"></i>관리자
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger-custom btn-sm">
+                                <i class="fas fa-sign-out-alt me-1"></i>로그아웃
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-container">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-header">
+                <h1><i class="fas fa-hand-wave me-3"></i>환영합니다!</h1>
+                <p>Spring Security를 사용한 안전한 로그인 시스템입니다.</p>
+            </div>
+
+            <!-- User Information -->
+            <div class="user-info">
+                <h5><i class="fas fa-user me-2"></i>사용자 정보</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>사용자명:</strong> <span th:text="${username}"></span></p>
+                        <p><strong>실명:</strong> <span th:text="${name}"></span></p>
+                        <p><strong>이메일:</strong> <span th:text="${email}"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>부서:</strong> <span th:text="${department}"></span></p>
+                        <p><strong>직급:</strong> <span th:text="${position}"></span></p>
+                        <p><strong>전화번호:</strong> <span th:text="${phone}"></span></p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p><strong>권한:</strong> 
+                            <span th:each="authority : ${authorities}" class="badge" th:text="${authority.authority}"></span>
+                        </p>
+                        <p th:if="${lastLoginAt}"><strong>마지막 로그인:</strong> <span th:text="${lastLoginAt}"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon security">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h5>보안 인증</h5>
+                        <p class="text-muted">Spring Security를 통한 안전한 사용자 인증 시스템</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon authentication">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h5>세션 관리</h5>
+                        <p class="text-muted">효율적인 세션 관리와 자동 만료 처리</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon session">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <h5>권한 관리</h5>
+                        <p class="text-muted">역할 기반 접근 제어 시스템</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a th:href="@{/admin}" class="btn btn-custom me-3" sec:authorize="hasRole('ADMIN')">
+                    <i class="fas fa-cog me-2"></i>관리자 페이지
+                </a>
+                <button type="button" class="btn btn-custom" onclick="showUserInfo()">
+                    <i class="fas fa-info-circle me-2"></i>사용자 정보
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Info Modal -->
+    <div class="modal fade" id="userInfoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">사용자 정보</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <tr>
+                            <td><strong>사용자 ID:</strong></td>
+                            <td><span th:text="${userId}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>사용자명:</strong></td>
+                            <td><span th:text="${username}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>실명:</strong></td>
+                            <td><span th:text="${name}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>이메일:</strong></td>
+                            <td><span th:text="${email}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>부서:</strong></td>
+                            <td><span th:text="${department}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>직급:</strong></td>
+                            <td><span th:text="${position}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>전화번호:</strong></td>
+                            <td><span th:text="${phone}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>권한:</strong></td>
+                            <td>
+                                <span th:each="authority : ${authorities}" class="badge bg-primary me-1" th:text="${authority.authority}"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>마지막 로그인:</strong></td>
+                            <td><span th:text="${lastLoginAt}"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>인증 상태:</strong></td>
+                            <td><span class="badge bg-success">인증됨</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showUserInfo() {
+            var modal = new bootstrap.Modal(document.getElementById('userInfoModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>
