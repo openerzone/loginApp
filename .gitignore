@@ -1,0 +1,31 @@
+# IDE 설정 파일들
+.classpath
+.factorypath
+.project
+.settings/
+.vscode/
+
+# Maven 빌드 결과물
+target/
+*.jar
+*.war
+
+# 로그 파일들
+*.log
+logs/
+
+# 임시 파일들
+*.tmp
+*.temp
+*~
+
+# OS 관련 파일들
+.DS_Store
+Thumbs.db
+
+# Java 컴파일 결과물
+*.class
+
+# Spring Boot 관련
+application-*.properties
+!application.properties
