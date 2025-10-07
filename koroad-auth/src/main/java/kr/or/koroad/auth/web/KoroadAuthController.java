@@ -71,7 +71,6 @@ public class KoroadAuthController {
                        @RequestParam(value = "logout", required = false) String logout,
                        @RequestParam(value = "expired", required = false) String expired,
                        Model model) {
-        
         System.out.println("=== KoroadAuthController.login() 메서드가 호출되었습니다 ===");
         System.out.println("=== GET /auth/login 요청 처리 중 ===");
         System.out.println("=== error: " + error + ", logout: " + logout + ", expired: " + expired + " ===");
