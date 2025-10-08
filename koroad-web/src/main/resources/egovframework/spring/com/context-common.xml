@@ -85,8 +85,5 @@
     <!-- choose one from above and alias it to the name Spring expects -->
     <alias name="local.MultiCommonsMultipartResolver" alias="filterMultipartResolver" />
     <!-- <alias name="spring.RegularCommonsMultipartResolver" alias="multipartResolver" /> -->
-    
-    <bean id="koroadAuthConfigure" class="kr.or.koroad.auth.config.KoroadAuthConfigure">
-		<property name="title" value="${auth.site.title}" />
-	</bean>
+
 </beans>

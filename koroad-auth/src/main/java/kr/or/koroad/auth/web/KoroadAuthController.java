@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 
 import org.egovframe.rte.fdl.cmmn.trace.LeaveaTrace;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +36,8 @@ import kr.or.koroad.auth.service.EgovLoginService;
 //@RequestMapping("/auth")
 public class KoroadAuthController {
 
-	static {
-		System.out.println("=== KoroadAuthController 클래스가 로드되었습니다 ===");
-	}
+	@Value("${auth.site.title}")
+	private String title;
 
 	/** EgovLoginService */
 	@Resource(name = "loginService")
@@ -47,8 +47,8 @@ public class KoroadAuthController {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 	
-	@Resource(name = "koroadAuthConfigure")
-	private KoroadAuthConfigure koroadAuthConfigure;
+//	@Resource(name = "koroadAuthConfigure")
+//	private KoroadAuthConfigure koroadAuthConfigure;
 
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
@@ -90,7 +90,9 @@ public class KoroadAuthController {
             model.addAttribute("errorMessage", "세션이 만료되었습니다. 다시 로그인해주세요.");
         }
         
-        model.addAttribute("authConfig", koroadAuthConfigure);
+//        model.addAttribute("authConfig", koroadAuthConfigure);
+        System.out.println("title : " + title);
+        model.addAttribute("title", title);
         
         return "/login";
     }
