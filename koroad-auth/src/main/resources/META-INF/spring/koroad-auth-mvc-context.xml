@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- MVC Context: Controller만 스캔 -->
+	<context:component-scan base-package="kr.or.koroad.auth">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<!-- Property Placeholder 설정 -->
+	<!-- 여러 properties 파일을 순서대로 로드하며, 나중에 로드된 파일이 이전 값을 오버라이드 -->
+	<bean id="propertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <!-- 1. 기본 설정 (koroad-auth 모듈) -->
+                <value>classpath:/META-INF/auth/koroad-auth.properties</value>
+                <!-- 2. 오버라이드 설정 (koroad-web 모듈) - 나중에 로드되어 우선순위가 높음 -->
+                <value>classpath:/auth/koroad-auth.properties</value>
+            </list>
+        </property>
+        <!-- 파일이 없어도 에러 발생하지 않도록 설정 -->
+        <property name="ignoreResourceNotFound" value="true"/>
+        <!-- 해결되지 않은 placeholder가 있어도 무시 -->
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+</beans>
