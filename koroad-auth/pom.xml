@@ -46,6 +46,43 @@
         <version>3.0.15.RELEASE</version>
     </dependency>  
 
+    <!-- JUnit (JUnit 4 기준) -->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Spring Test -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>5.3.27</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- MyBatis Spring -->
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis-spring</artifactId>
+        <version>2.0.7</version>
+    </dependency>
+
+    <!-- MyBatis -->
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.5.7</version>
+    </dependency>
+    
+    <!-- DataSource 관련 라이브러리 (예: HikariCP) -->
+    <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>4.0.3</version>
+    </dependency>
+    
     <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>

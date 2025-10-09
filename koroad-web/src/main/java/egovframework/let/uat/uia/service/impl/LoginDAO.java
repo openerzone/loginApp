@@ -1,6 +1,6 @@
-package kr.or.koroad.auth.service.impl;
+package egovframework.let.uat.uia.service.impl;
 
-import kr.or.koroad.auth.vo.LoginVO;
+import egovframework.com.cmm.LoginVO;
 
 import org.egovframe.rte.psl.dataaccess.EgovAbstractMapper;
 

@@ -19,7 +19,6 @@
              
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
-		<security:intercept-url pattern="/auth/test" access="permitAll()" />
         <security:intercept-url pattern="/css/**" access="permitAll()" />
         <security:intercept-url pattern="/js/**" access="permitAll()" />
         <security:intercept-url pattern="/images/**" access="permitAll()" />

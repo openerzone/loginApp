@@ -1,10 +1,11 @@
-package kr.or.koroad.auth.service.impl;
+package egovframework.let.uat.uia.service.impl;
 
-import kr.or.koroad.auth.vo.LoginVO;
-import kr.or.koroad.auth.service.EgovLoginService;
+import egovframework.com.cmm.LoginVO;
+import egovframework.let.uat.uia.service.EgovLoginService;
+import egovframework.let.utl.fcc.service.EgovNumberUtil;
+import egovframework.let.utl.fcc.service.EgovStringUtil;
 import kr.or.koroad.auth.util.EgovFileScrty;
-import kr.or.koroad.auth.util.NumberUtil;
-import kr.or.koroad.auth.util.StringUtil;
+
 import org.egovframe.rte.fdl.cmmn.EgovAbstractServiceImpl;
 
 import javax.annotation.Resource;
@@ -104,10 +105,10 @@ public class EgovLoginServiceImpl extends EgovAbstractServiceImpl implements Ego
 		for (int i = 1; i <= 6; i++) {
 			// 영자
 			if (i % 3 != 0) {
-				newpassword += StringUtil.getRandomStr('a', 'z');
+				newpassword += EgovStringUtil.getRandomStr('a', 'z');
 				// 숫자
 			} else {
-				newpassword += NumberUtil.getRandomNum(0, 9);
+				newpassword += EgovNumberUtil.getRandomNum(0, 9);
 			}
 		}
 
