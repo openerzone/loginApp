@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+						http://www.springframework.org/schema/jdbc  http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+						http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+	 
+	<!-- mysql -->
+    <bean id="dataSource-auth" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="net.sf.log4jdbc.DriverSpy"/>
+        <property name="url" value="jdbc:log4jdbc:mysql://127.0.0.1:3306/pst" />
+        <property name="username" value="root"/>
+        <property name="password" value="1234"/>
+    </bean>
+    
+    <!-- SqlSessionFactory 설정 -->
+    <bean id="sqlSessionFactory-auth" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource-auth" />
+        <property name="mapperLocations" value="classpath:/META-INF/mappers/**/*.xml" />
+        <property name="typeAliasesPackage" value="kr.or.koroad.auth.model" />
+    </bean>
+    
+    <!-- MyBatis Mapper 스캔 -->
+    <mybatis:scan base-package="kr.or.koroad.auth.service.mapper" 
+    			  annotation="org.apache.ibatis.annotations.Mapper"
+    			  factory-ref="sqlSessionFactory-auth" />
+    
+</beans>
+

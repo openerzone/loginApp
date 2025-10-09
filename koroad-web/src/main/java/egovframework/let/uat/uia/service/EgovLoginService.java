@@ -1,6 +1,6 @@
-package kr.or.koroad.auth.service;
+package egovframework.let.uat.uia.service;
 
-import kr.or.koroad.auth.vo.LoginVO;
+import egovframework.com.cmm.LoginVO;
 
 /**
  * 일반 로그인을 처리하는 비즈니스 구현 클래스

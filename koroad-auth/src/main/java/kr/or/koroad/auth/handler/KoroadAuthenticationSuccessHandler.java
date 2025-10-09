@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -18,11 +19,14 @@ import org.springframework.stereotype.Component;
 @Component(value = "koroadAuthenticationSuccessHandler")
 public class KoroadAuthenticationSuccessHandler implements AuthenticationSuccessHandler{
 
+	@Value("${auth.success.redirect.path}")
+	private String redirecPath;
+	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		// 로그인 성공 후 메인 페이지로 리다이렉트
-        response.sendRedirect("/cmm/main/mainPage.do");
+        response.sendRedirect(redirecPath);
 	}
 
 }

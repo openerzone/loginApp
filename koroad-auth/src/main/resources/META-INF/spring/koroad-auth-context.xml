@@ -4,6 +4,9 @@
 		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
 				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
+	<!-- DataSource 및 MyBatis 설정 import -->
+	<import resource="koroad-auth-datasource.xml"/>
+
     <!-- Root Context: Service, Repository, Component 스캔 -->
 	<context:component-scan base-package="kr.or.koroad.auth">
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
@@ -12,4 +15,23 @@
 		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
 	</context:component-scan>
 
+	<!-- Property Placeholder 설정 (Root Context) -->
+	<!-- Root Context에서 로드된 properties는 모든 자식 Context에서 사용 가능 -->
+	<bean id="authPropertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <!-- 1. Context 관련 설정 (Security, Success Handler 등) -->
+                <value>classpath:/META-INF/auth/koroad-auth-context.properties</value>
+                <!-- 2. koroad-web 모듈에서 Context 설정 오버라이드 -->
+                <value>classpath:/auth/koroad-auth-context.properties</value>
+            </list>
+        </property>
+        <!-- 파일이 없어도 에러 발생하지 않도록 설정 -->
+        <property name="ignoreResourceNotFound" value="true"/>
+        <!-- 해결되지 않은 placeholder가 있어도 무시 -->
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <!-- 우선순위 설정 (낮은 숫자가 높은 우선순위) -->
+        <property name="order" value="1"/>
+    </bean>
 </beans>

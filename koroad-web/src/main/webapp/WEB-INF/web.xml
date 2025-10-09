@@ -104,7 +104,6 @@
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<param-value>
-				classpath*:META-INF/spring/koroad-auth-mvc-context.xml
 				classpath*:META-INF/spring/koroad-auth-mvc.xml
 			</param-value>
 		</init-param>

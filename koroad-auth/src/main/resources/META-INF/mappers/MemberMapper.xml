@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.koroad.auth.service.mapper.MemberMapper">
+
+    <select id="selectMemberById" resultType="kr.or.koroad.auth.model.Member">
+        SELECT 
+        	MBER_ID as userId,
+        	PASSWORD as password,
+        	MBER_NM as userName
+        FROM LETTNGNRLMBER 
+        WHERE MBER_ID = #{id}
+    </select>
+    
+</mapper>
