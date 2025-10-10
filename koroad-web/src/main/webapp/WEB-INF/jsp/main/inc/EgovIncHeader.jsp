@@ -12,6 +12,7 @@
 --%>
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page import ="kr.or.koroad.auth.vo.LoginVO" %>
 <div id="skipNav" class="invisible">
     <dl>
@@ -34,10 +35,7 @@
 </div>
 <!-- //행정안전부 로고 및 타이틀 끝 -->
 <div class="header_login">
-    <%
-       LoginVO loginVO = (LoginVO)session.getAttribute("LoginVO"); 
-       if(loginVO == null){ 
-    %>
+    <sec:authorize access="!isAuthenticated()">
     <div id="header_loginname">
         <a href="#" ></a>
     </div>
@@ -47,16 +45,23 @@
         <li class="righttop_bgmiddle"><a href="<c:url value='/auth/login'/>">로그인</a></li>
         <li class="righttop_bgright">&nbsp;</li>
     </ul>
-    <% }else { %>
-    <c:set var="loginName" value="<%= loginVO.getName()%>"/>
-    <div id="header_loginname">
-        <a href="#LINK" onclick="alert('개인정보 확인 등의 링크 제공'); return false;"><c:out value="${loginName}"/> 님</a>
-    </div>
-    <div class="header_loginconnection"> 관리자로 로그인하셨습니다.</div>
-    <ul class="login_bg_area">
-        <li class="righttop_bgleft">&nbsp;</li>
-        <li class="righttop_bgmiddle"><a href="<c:url value='/uat/uia/actionLogout.do'/>">로그아웃</a></li>
-        <li class="righttop_bgright">&nbsp;</li>
-    </ul>
-    <% } %>    
+    </sec:authorize> 
+
+    <sec:authorize access="isAuthenticated()">
+	    <div id="header_loginname">
+	        <a href="#LINK" onclick="alert('개인정보 확인 등의 링크 제공'); return false;"><sec:authentication property="principal.username"/> 님</a>
+	    </div>
+	    <div class="header_loginconnection"> 관리자로 로그인하셨습니다.</div>
+	    <ul class="login_bg_area">
+	        <li class="righttop_bgleft">&nbsp;</li>
+	        <li class="righttop_bgmiddle">
+	        	<a href="#" onclick="document.getElementById('logout-form').submit(); return false;">로그아웃</a>
+	        </li>
+	        <li class="righttop_bgright">&nbsp;</li>
+	    </ul>
+	    <!-- 로그아웃 폼 -->
+	    <form id="logout-form" action="<c:url value='/auth/logout'/>" method="POST" style="display:none;">
+	        <sec:csrfInput/>
+	    </form>
+    </sec:authorize>    
 </div>

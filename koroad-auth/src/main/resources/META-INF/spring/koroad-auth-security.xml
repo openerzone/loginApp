@@ -16,13 +16,21 @@
             username-parameter="username"
             password-parameter="password"
             authentication-success-handler-ref="koroadAuthenticationSuccessHandler" />   
-             
+
+        <!-- 로그아웃 설정 -->
+        <security:logout
+            logout-url="/auth/logout"                
+            logout-success-url="/auth/login?logout" />
+                         
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
+		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
         <security:intercept-url pattern="/css/**" access="permitAll()" />
         <security:intercept-url pattern="/js/**" access="permitAll()" />
         <security:intercept-url pattern="/images/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
+		
+		<security:csrf />
     </security:http>
 
 	
