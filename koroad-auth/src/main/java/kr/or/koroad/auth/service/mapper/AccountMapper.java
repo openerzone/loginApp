@@ -4,10 +4,10 @@ import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import kr.or.koroad.auth.model.Member;
+import kr.or.koroad.auth.model.Account;
 
 @Mapper
-public interface MemberMapper {
+public interface AccountMapper {
 
-	public Optional<Member> selectMemberById(String id);
+	public Optional<Account> selectAccountById(String id);
 }

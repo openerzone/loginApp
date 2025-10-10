@@ -20,9 +20,13 @@
 	    <Logger name="jdbc.sqltiming" level="ERROR" additivity="false">
 	        <AppenderRef ref="console" />
 	    </Logger>
-	    <Logger name="org.springframework" level="DEBUG" additivity="false">
+	    <Logger name="org.springframework.security" level="DEBUG" additivity="false">
 	        <AppenderRef ref="console" />
 	    </Logger>
+	    <Logger name="kr.or.koroad.auth" level="DEBUG" additivity="false">
+	        <AppenderRef ref="console" />
+	    </Logger>
+	    <!-- 
 	    <Logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG" additivity="false">
 	        <AppenderRef ref="console" />
 	    </Logger>
@@ -62,6 +66,7 @@
 	    <Logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter" level="DEBUG" additivity="false">
 	        <AppenderRef ref="console" />
 	    </Logger>
+	     -->
         <Root level="ERROR">
             <AppenderRef ref="console" />
         </Root>

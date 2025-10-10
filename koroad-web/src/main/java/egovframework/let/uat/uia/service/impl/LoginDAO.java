@@ -1,5 +1,7 @@
 package egovframework.let.uat.uia.service.impl;
 
+import java.util.Optional;
+
 import egovframework.com.cmm.LoginVO;
 
 import org.egovframe.rte.psl.dataaccess.EgovAbstractMapper;
@@ -39,11 +41,11 @@ public class LoginDAO extends EgovAbstractMapper {
 	/**
 	 * 아이디를 찾는다.
 	 * @param vo LoginVO
-	 * @return LoginVO
+	 * @return Optional<LoginVO>
 	 * @exception Exception
 	 */
-	public LoginVO searchId(LoginVO vo) throws Exception {
-		return (LoginVO) selectOne("loginDAO.searchId", vo);
+	public Optional<LoginVO> searchId(LoginVO vo) throws Exception {
+		return Optional.ofNullable((LoginVO) selectOne("loginDAO.searchId", vo));
 	}
 
 	/**

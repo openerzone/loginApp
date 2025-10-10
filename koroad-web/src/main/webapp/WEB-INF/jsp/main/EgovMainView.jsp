@@ -48,7 +48,7 @@
 				<!-- 공지사항 시작 -->
 				<div class="notice_area">
 					<h3 class="notice_title"><img src="<c:url value='/images/index/img_subtitle01.gif' />" alt="공지사항" /></h3>
-					<a href="/sht_webapp/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_AAAAAAAAAAAA&menuNo=43" class="more"><img src="<c:url value='/images/index/btn_more.gif' />" alt="more" /></a>
+					<a href="/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_AAAAAAAAAAAA&menuNo=43" class="more"><img src="<c:url value='/images/index/btn_more.gif' />" alt="more" /></a>
 					<ul>
     					<c:forEach var="result" items="${notiList}" varStatus="status">
         					<li>

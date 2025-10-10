@@ -5,7 +5,7 @@
 
 
 	<!-- 로그인 처리를 위한 resultMap -->
-	<resultMap id="login" type="kr.or.koroad.auth.vo.LoginVO">
+	<resultMap id="login" type="egovframework.com.cmm.LoginVO">
 		<result property="id" column="id"/>
 		<result property="name" column="name"/>
 		<result property="ihidNum" column="ihidNum"/>
@@ -27,9 +27,7 @@
 	</resultMap>
 	-->
 	<!-- 일반 로그인 -->
-	<select id="actionLogin" resultMap="login">
-		<if test="userSe == &quot;USR&quot;">
-			
+	<select id="searchId" resultMap="login">
             SELECT EMPLYR_ID AS id
                  , USER_NM AS name
                  , PASSWORD AS password
@@ -40,10 +38,7 @@
                  , ESNTL_ID AS uniqId
               FROM LETTNEMPLYRINFO
              WHERE EMPLYR_ID = #{id}
-               AND PASSWORD = #{password}
                AND EMPLYR_STTUS_CODE = 'P'
-			
-		</if>
 	</select>
 	
 	<!-- 인증서 로그인

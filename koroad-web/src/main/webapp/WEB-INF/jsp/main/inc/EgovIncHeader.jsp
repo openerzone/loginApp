@@ -36,15 +36,15 @@
 <!-- //행정안전부 로고 및 타이틀 끝 -->
 <div class="header_login">
     <sec:authorize access="!isAuthenticated()">
-    <div id="header_loginname">
-        <a href="#" ></a>
-    </div>
-    <div class="header_loginconnection"></div>
-    <ul class="login_bg_area">
-        <li class="righttop_bgleft">&nbsp;</li>
-        <li class="righttop_bgmiddle"><a href="<c:url value='/auth/login'/>">로그인</a></li>
-        <li class="righttop_bgright">&nbsp;</li>
-    </ul>
+	    <div id="header_loginname">
+	        <a href="#" ></a>
+	    </div>
+	    <div class="header_loginconnection"></div>
+	    <ul class="login_bg_area">
+	        <li class="righttop_bgleft">&nbsp;</li>
+	        <li class="righttop_bgmiddle"><a href="<c:url value='/auth/login'/>">로그인</a></li>
+	        <li class="righttop_bgright">&nbsp;</li>
+	    </ul>
     </sec:authorize> 
 
     <sec:authorize access="isAuthenticated()">

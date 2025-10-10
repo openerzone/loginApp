@@ -36,15 +36,16 @@
 	
     <!-- Authentication Manager -->
     <security:authentication-manager>
-        <security:authentication-provider>
-            <security:user-service>
-                <security:user name="user" 
-                              password="{noop}password" 
-                              authorities="ROLE_USER" />
-                <security:user name="admin" 
-                              password="{noop}admin123" 
-                              authorities="ROLE_USER, ROLE_ADMIN" />
-            </security:user-service>
-        </security:authentication-provider>
-    </security:authentication-manager>	
+        <!-- Custom AuthenticationProvider 사용 (ID를 salt로 사용하는 비밀번호 검증) -->
+        <security:authentication-provider ref="koroadAuthenticationProvider" />
+    </security:authentication-manager>
+    
+    <!-- EgovPasswordEncoder: EgovFileScrty.encryptPassword 메소드를 사용하는 인코더 -->
+	<bean id="passwordEncoder" class="kr.or.koroad.auth.util.EgovPasswordEncoder" />
+	
+	<!-- Custom AuthenticationProvider: 사용자 ID를 salt로 사용하는 비밀번호 검증 -->
+	<bean id="koroadAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadDaoAuthenticationProvider">
+		<constructor-arg ref="passwordEncoder" />
+		<property name="userDetailsService" ref="allbaroUserDetailsService" />
+	</bean>
 </beans>

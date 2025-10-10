@@ -1,13 +1,14 @@
 package egovframework.com.auth;
 
+import java.util.Optional;
+
 import javax.annotation.Resource;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import egovframework.com.cmm.LoginVO;
 import egovframework.let.uat.uia.service.impl.LoginDAO;
-import kr.or.koroad.auth.security.KoroadUserDetails;
 import kr.or.koroad.auth.service.AbstractKoroadUserDetailsService;
 
 @Service
@@ -17,19 +18,28 @@ public class AllbaroUserDetailsService extends AbstractKoroadUserDetailsService 
 	private LoginDAO loginDAO;
 	
 	@Override
-	public void loadKoroadUserByUsername(String username, KoroadUserDetails userDetails) {
+	public Optional<UserDetails> loadSiteUserByUsername(String username) {
 		
 		LoginVO vo = new LoginVO();
 		vo.setId(username);
 		
 		try {
-			LoginVO login = loginDAO.searchId(vo);
+			// LoginDAO.searchId()가 Optional<LoginVO>를 반환
+			Optional<LoginVO> loginOptional = loginDAO.searchId(vo);
 			
-//			if (login == null || "".equals(login.getId()))	// 해당 케이스는 임시계정일 때 
-//				throw new UsernameNotFoundException("");
+			// Optional이 값을 가지고 있으면 AllbaroUser로 변환
+			return loginOptional.map(login -> {
+				System.out.println("---------------------------------------");
+				System.out.println("Login Found: " + login.getId() + " / " + login.getName());
+				System.out.println("---------------------------------------");
+				return (UserDetails) new AllbaroUser(login);
+			});
 			
 		} catch (Exception e) {
-//			throw e;
+			System.err.println("Error loading user: " + username);
+			e.printStackTrace();
+			// 예외 발생 시 빈 Optional 반환
+			return Optional.empty();
 		}
 	}
 

@@ -10,19 +10,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-context.xml"})
-public class KoroadUserMapperTest {
+public class AccountMapperTest {
 
 	@Autowired
-	private MemberMapper memberMapper;
+	private AccountMapper accountMapper;
 	
 	@Test
 	public void testAssertMapper() {
-		assertNotNull(memberMapper);
+		assertNotNull(accountMapper);
 	}
 	
 	@Test
 	public void testSelectById() {
-		assertTrue(memberMapper.selectMemberById("admin").isPresent());
+		assertTrue(accountMapper.selectAccountById("admin").isPresent());
 	}
 
 }

@@ -71,16 +71,10 @@ public class EgovLoginServiceImpl extends EgovAbstractServiceImpl implements Ego
 	public LoginVO searchId(LoginVO vo) throws Exception {
 
 		// 1. 이름, 이메일주소가 DB와 일치하는 사용자 ID를 조회한다.
-		LoginVO loginVO = loginDAO.searchId(vo);
-
-		// 2. 결과를 리턴한다.
-		if (loginVO != null && !loginVO.getId().equals("")) {
-			return loginVO;
-		} else {
-			loginVO = new LoginVO();
-		}
-
-		return loginVO;
+		// LoginDAO.searchId()가 Optional<LoginVO>를 반환
+		return loginDAO.searchId(vo)
+			.filter(loginVO -> loginVO.getId() != null && !loginVO.getId().equals(""))
+			.orElse(new LoginVO());
 	}
 
 	/**

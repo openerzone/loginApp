@@ -1,6 +1,6 @@
 package kr.or.koroad.auth.model;
 
-public class Member {
+public class Account {
 
 	private String mberId;
 	private String password;
@@ -24,5 +24,15 @@ public class Member {
 	public void setMberNm(String mberNm) {
 		this.mberNm = mberNm;
 	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Account {" + 
+				" mberId=" + mberId +
+				" password=" + password +
+				" mberNm=" + mberNm +
+				"}";
+	}
+	
 	
 }

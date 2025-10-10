@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import egovframework.com.cmm.EgovMessageSource;
+import kr.or.koroad.auth.service.KoroadUserDetails;
 import kr.or.koroad.auth.vo.LoginVO;
 import egovframework.com.cmm.service.EgovFileMngService;
 import egovframework.com.cmm.service.EgovFileMngUtil;
@@ -23,6 +24,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -130,7 +132,7 @@ public class EgovBBSManageController {
      * @throws Exception
      */
     @RequestMapping("/cop/bbs/selectBoardList.do")
-    public String selectBoardArticles(HttpSession session, 
+    public String selectBoardArticles(HttpSession session, @AuthenticationPrincipal KoroadUserDetails user, 
 			@RequestParam(value="menuNo", required=false) String menuNo,
     		@ModelAttribute("searchVO") BoardVO boardVO, 
     		ModelMap model) throws Exception {
@@ -140,7 +142,7 @@ public class EgovBBSManageController {
     	session.setAttribute("menuNo",menuNo);
     }
     	
-	LoginVO user = (LoginVO)EgovUserDetailsHelper.getAuthenticatedUser();
+//	LoginVO user = (LoginVO)EgovUserDetailsHelper.getAuthenticatedUser();
 
 	boardVO.setBbsId(boardVO.getBbsId());
 	boardVO.setBbsNm(boardVO.getBbsNm());
@@ -148,7 +150,10 @@ public class EgovBBSManageController {
 	BoardMasterVO vo = new BoardMasterVO();
 
 	vo.setBbsId(boardVO.getBbsId());
-	vo.setUniqId(user.getUniqId());
+//	vo.setUniqId(user.getUniqId());
+	System.out.println("User :: " + user);
+	System.out.println("User Name :: " + user.getUsername());
+	vo.setUniqId(user.getUsername());
 
 	BoardMasterVO master = bbsAttrbService.selectBBSMasterInf(vo);
 
