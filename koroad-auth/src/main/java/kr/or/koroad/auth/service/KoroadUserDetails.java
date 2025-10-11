@@ -34,9 +34,13 @@ public class KoroadUserDetails implements UserDetails{
 		return account.getPassword();
 	}
 
+	public String getUserId() {
+		return account.getMberId();
+	}
+	
 	@Override
 	public String getUsername() {
-		return account.getMberId();
+		return account.getMberNm();
 	}
 
 	@Override

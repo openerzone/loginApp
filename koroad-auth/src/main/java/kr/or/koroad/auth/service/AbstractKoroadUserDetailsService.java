@@ -20,19 +20,14 @@ public abstract class AbstractKoroadUserDetailsService implements UserDetailsSer
 
 		//TODO ESB로 던져야 한다.
 		Account account = accountMapper.selectAccountById(username).orElseThrow(() -> new UsernameNotFoundException("Not found loginId : " + username));
-		System.out.println("---------------------------------------");
-		System.out.println(account);
-		System.out.println("---------------------------------------");
-		//KoroadUserDetails userDetails = new KoroadUserDetails(account);
+		KoroadUserDetails guest = new KoroadUserDetails(account);
 		
-		//TODO 응용단에서 username 으로 다시 조회를 하고 나온 객체와 Member 를 가지고 KoroadUserDetails 를 만들어야 한다??
-		Optional<UserDetails> user = loadSiteUserByUsername(username);
+		//응용단에서 username(사번) 으로 사용자 조회
+		Optional<UserDetails> user = loadSiteUserByUserId(username);
 		
-		UserDetails userDetails = (user.isEmpty())? new KoroadUserDetails(account): user.get();
-		
-		return userDetails;
+		return (user.isEmpty())? guest: user.get();
 	}
 
-	public abstract Optional<UserDetails> loadSiteUserByUsername(String username);
+	public abstract Optional<UserDetails> loadSiteUserByUserId(String userId);
 	
 }

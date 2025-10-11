@@ -6,6 +6,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import kr.or.koroad.auth.service.KoroadUserDetails;
 import kr.or.koroad.auth.util.EgovPasswordEncoder;
 
 /**
@@ -33,11 +34,11 @@ public class KoroadDaoAuthenticationProvider extends DaoAuthenticationProvider {
 		}
 
 		String presentedPassword = authentication.getCredentials().toString();
-		String username = userDetails.getUsername();
+		String userId = ((KoroadUserDetails)userDetails).getUserId();
 		
 		// EgovPasswordEncoder의 matchesWithSalt 메소드를 사용하여 검증
 		// username(ID)을 salt로 사용
-		if (!egovPasswordEncoder.matchesWithSalt(presentedPassword, userDetails.getPassword(), username)) {
+		if (!egovPasswordEncoder.matchesWithSalt(presentedPassword, userDetails.getPassword(), userId)) {
 			this.logger.debug("Failed to authenticate since password does not match stored value");
 			throw new BadCredentialsException(
 				this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));

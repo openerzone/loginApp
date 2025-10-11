@@ -19,8 +19,13 @@ public class AllbaroUser extends KoroadUserDetails{
 	}
 	
 	@Override
-	public String getUsername() {
+	public String getUserId() {
 		return login.getId();
+	}
+	
+	@Override
+	public String getUsername() {
+		return login.getName();
 	}
 	
 	@Override
@@ -33,11 +38,6 @@ public class AllbaroUser extends KoroadUserDetails{
 		// TODO: 권한 정보를 데이터베이스에서 조회하여 반환하도록 구현 필요
 		// 임시로 빈 컬렉션 반환
 		return java.util.Collections.emptyList();
-	}
-	
-	// LoginVO 접근을 위한 getter
-	public LoginVO getLogin() {
-		return login;
 	}
 
 }

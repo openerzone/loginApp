@@ -18,29 +18,21 @@ public class AllbaroUserDetailsService extends AbstractKoroadUserDetailsService 
 	private LoginDAO loginDAO;
 	
 	@Override
-	public Optional<UserDetails> loadSiteUserByUsername(String username) {
+	public Optional<UserDetails> loadSiteUserByUserId(String userId) {
 		
-		LoginVO vo = new LoginVO();
-		vo.setId(username);
+		LoginVO param = new LoginVO();
+		param.setId(userId);
 		
-		try {
-			// LoginDAO.searchId()가 Optional<LoginVO>를 반환
-			Optional<LoginVO> loginOptional = loginDAO.searchId(vo);
-			
-			// Optional이 값을 가지고 있으면 AllbaroUser로 변환
-			return loginOptional.map(login -> {
-				System.out.println("---------------------------------------");
-				System.out.println("Login Found: " + login.getId() + " / " + login.getName());
-				System.out.println("---------------------------------------");
-				return (UserDetails) new AllbaroUser(login);
-			});
-			
-		} catch (Exception e) {
-			System.err.println("Error loading user: " + username);
-			e.printStackTrace();
-			// 예외 발생 시 빈 Optional 반환
-			return Optional.empty();
-		}
+		// LoginDAO.searchId()가 Optional<LoginVO>를 반환
+		Optional<LoginVO> optionalUser = loginDAO.searchId(param);
+		
+		// Optional이 값을 가지고 있으면 AllbaroUser로 변환
+		return optionalUser.map(user -> {
+			System.out.println("---------------------------------------");
+			System.out.println("Login Found: " + user.getId() + " / " + user.getName());
+			System.out.println("---------------------------------------");
+			return (UserDetails) new AllbaroUser(user);
+		});
 	}
 
 }

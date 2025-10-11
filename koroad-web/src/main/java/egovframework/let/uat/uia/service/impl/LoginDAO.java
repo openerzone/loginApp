@@ -42,9 +42,8 @@ public class LoginDAO extends EgovAbstractMapper {
 	 * 아이디를 찾는다.
 	 * @param vo LoginVO
 	 * @return Optional<LoginVO>
-	 * @exception Exception
 	 */
-	public Optional<LoginVO> searchId(LoginVO vo) throws Exception {
+	public Optional<LoginVO> searchId(LoginVO vo) {
 		return Optional.ofNullable((LoginVO) selectOne("loginDAO.searchId", vo));
 	}
 
