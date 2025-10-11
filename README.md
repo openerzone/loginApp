@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LoginApp - Spring Security 인증 모듈 적용 가이드
 
 전자정부 프레임워크 기반의 Spring Security 인증 모듈 적용 가이드입니다.
@@ -916,3 +917,9 @@ mvn tomcat7:run
 
 **문서 버전**: 1.0.0  
 **최종 수정일**: 2025-10-11
+=======
+# loginApp
+로그인 모듈 테스트
+
+## koroad-auth 모듈
+>>>>>>> 202af5ed1606c35978d3a4782c7ef18c5fcd66c4
