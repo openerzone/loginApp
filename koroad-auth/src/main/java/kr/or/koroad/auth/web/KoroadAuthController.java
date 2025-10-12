@@ -74,14 +74,14 @@ public class KoroadAuthController {
     }
     
     @PostMapping("/failure")
-    public String loginFail(@RequestParam(value = "error", required = false) String error,
-    						HttpServletRequest request,
-				    		Model model) {
+    public String loginFail(HttpServletRequest request, Model model) {
     	
-    	if (error != null) {
-    		model.addAttribute("errorMessage", request.getAttribute("errorMessage"));
+    	Boolean error = (Boolean) request.getAttribute("error");
+    	String message = (String) request.getAttribute("message");
+    	
+    	if (error) {
+    		model.addAttribute("errorMessage", message);
     	}
-    	
     	
     	model.addAttribute("title", title);
     	

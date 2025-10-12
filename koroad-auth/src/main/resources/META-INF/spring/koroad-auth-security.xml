@@ -17,7 +17,6 @@
             password-parameter="password"
             authentication-success-handler-ref="authenticationSuccessHandler" 
             authentication-failure-handler-ref="authenticationFailureHandler" />  
-            <!-- login-processing-url: 실제 인증을 처리하는 URL (Controller와 분리) -->
 
         <!-- 로그아웃 설정 -->
         <security:logout
