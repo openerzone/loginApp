@@ -26,9 +26,7 @@
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
-        <security:intercept-url pattern="/css/**" access="permitAll()" />
-        <security:intercept-url pattern="/js/**" access="permitAll()" />
-        <security:intercept-url pattern="/images/**" access="permitAll()" />
+        <security:intercept-url pattern="/static/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
 		
 		<security:csrf />

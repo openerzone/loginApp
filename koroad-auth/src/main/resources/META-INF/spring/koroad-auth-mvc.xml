@@ -18,6 +18,9 @@
 
     <!-- MVC Configuration -->
     <mvc:annotation-driven />
+    
+    <!-- Static Resource Handler -->
+    <mvc:resources mapping="/static/**" location="classpath:/META-INF/static/" />
 
 	<!-- Property Placeholder 설정 -->
 	<!-- 여러 properties 파일을 순서대로 로드하며, 나중에 로드된 파일이 이전 값을 오버라이드 -->
