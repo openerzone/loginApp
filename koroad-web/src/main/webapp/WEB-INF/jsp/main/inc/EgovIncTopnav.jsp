@@ -13,7 +13,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import ="kr.or.koroad.auth.vo.LoginVO" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!-- topmenu start -->
 <form name="selectOne" action="#LINK">
@@ -26,14 +26,9 @@
 	<li><a href="/sht_webapp/EgovPageLink.do?menuNo=21&linkIndex=13">정보마당</a></li>
 	<li><a href="/sht_webapp/EgovPageLink.do?menuNo=31&linkIndex=15">고객지원</a></li>
 	<li><a href="/sht_webapp/cop/smt/sim/EgovIndvdlSchdulManageWeekList.do?menuNo=42">알림마당</a></li>
-    <%
-       LoginVO loginVO = (LoginVO)session.getAttribute("LoginVO"); 
-       if(loginVO != null){ 
-    %>
-    <li><a href="/sht_webapp/cop/smt/sim/EgovIndvdlSchdulManageMonthList.do?menuNo=52">사이트관리(관리자)</a></li>
-    <%
-       }
-    %>
+    <sec:authorize access="!isAuthenticated()">
+    	<li><a href="/cop/smt/sim/EgovIndvdlSchdulManageMonthList.do?menuNo=52">사이트관리(관리자)</a></li>
+    </sec:authorize>
 </ul>
 
 <!-- //topmenu end -->

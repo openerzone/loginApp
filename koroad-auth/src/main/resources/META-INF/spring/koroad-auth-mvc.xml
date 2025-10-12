@@ -42,7 +42,7 @@
 
 	<!-- Thymeleaf View Resolver -->
     <bean id="templateResolver" class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
-        <property name="prefix" value="classpath:/META-INF/templates/auth" />
+        <property name="prefix" value="classpath:/META-INF/templates/view" />
         <property name="suffix" value=".html" />
         <property name="templateMode" value="HTML" />
         <property name="characterEncoding" value="UTF-8" />

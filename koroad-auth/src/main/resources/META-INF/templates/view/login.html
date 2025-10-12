@@ -77,10 +77,12 @@
         .alert-danger {
             background-color: #f8d7da;
             color: #721c24;
+            font-size: 14px;
         }
         .alert-success {
             background-color: #d4edda;
             color: #155724;
+            font-size: 14px;
         }
         .demo-accounts {
             background-color: #f8f9fa;
@@ -124,7 +126,7 @@
         </div>
 
         <!-- 로그인 폼 -->
-        <form th:action="@{/login}" method="post">
+        <form th:action="@{/auth/submit}" method="post">
             <div class="form-group">
                 <label for="username" class="form-label" th:text="${@environment.getProperty('auth.login.username', '사용자명')}">사용자명</label>
                 <input type="text" 

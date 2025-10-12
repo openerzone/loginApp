@@ -12,11 +12,12 @@
         <!-- Login Configuration -->
         <security:form-login 
             login-page="/auth/login"
-            authentication-failure-url="/auth/login?error=true"
+            login-processing-url="/auth/submit"
             username-parameter="username"
             password-parameter="password"
-            authentication-success-handler-ref="authenticationSuccessHandler" />  
-            <!-- authentication-failure-handler-ref="" 로그인 실패시 처리 (ex. 5회 이상 실패)-->
+            authentication-success-handler-ref="authenticationSuccessHandler" 
+            authentication-failure-handler-ref="authenticationFailureHandler" />  
+            <!-- login-processing-url: 실제 인증을 처리하는 URL (Controller와 분리) -->
 
         <!-- 로그아웃 설정 -->
         <security:logout
@@ -51,6 +52,9 @@
 	<bean id="authenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
 		<property name="defaultTargetUrl" value="${auth.success.redirect.path}" />
 	</bean>
+		
+	<!-- Custom AuthenticationSuccessHandler: 인증 실패 이후 추가적인 작업 처리 -->
+	<bean id="authenticationFailureHandler" class="kr.or.koroad.auth.handler.KoroadAuthenticationFailureHandler" />
 
 	<bean id="logoutSuccessHandler" 
 	      class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">

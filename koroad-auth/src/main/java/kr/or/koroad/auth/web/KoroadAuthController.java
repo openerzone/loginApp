@@ -1,6 +1,7 @@
 package kr.or.koroad.auth.web;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.egovframe.rte.fdl.cmmn.trace.LeaveaTrace;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -69,6 +71,21 @@ public class KoroadAuthController {
         model.addAttribute("title", title);
         
         return "/login";
+    }
+    
+    @PostMapping("/failure")
+    public String loginFail(@RequestParam(value = "error", required = false) String error,
+    						HttpServletRequest request,
+				    		Model model) {
+    	
+    	if (error != null) {
+    		model.addAttribute("errorMessage", request.getAttribute("errorMessage"));
+    	}
+    	
+    	
+    	model.addAttribute("title", title);
+    	
+    	return "/login";
     }
     
 }
