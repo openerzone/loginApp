@@ -12,12 +12,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 /**
  * 로그인 성공 시 세션에 사용자 정보를 저장하는 핸들러
  * UserDetailsService와 연동하여 로그인 성공 시 자동으로 세션에 사용자 정보 저장
- * TODO. abstract 로 만들고 각 응용단에서 재정의
+ * TODO 응용단에서 필요시 자체구현
  */
-//@Component(value = "koroadAuthenticationSuccessHandler")
 public class KoroadAuthenticationSuccessHandler implements AuthenticationSuccessHandler{
 
-//	@Value("${auth.success.redirect.path}")
 	private String redirectPath;
 	
 	public void setRedirectPath(String redirectPath) {
