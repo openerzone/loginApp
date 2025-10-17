@@ -23,9 +23,12 @@
 	    <Logger name="org.springframework.security" level="DEBUG" additivity="false">
 	        <AppenderRef ref="console" />
 	    </Logger>
-	    <Logger name="kr.or.koroad.auth" level="DEBUG" additivity="false">
+	    <Logger name="kr.or.koroad.auth" level="INFO" additivity="false">
 	        <AppenderRef ref="console" />
 	    </Logger>
+	    <Logger name="org.springframework.web" level="INFO" additivity="false">
+	        <AppenderRef ref="console" />
+	    </Logger>	    
 	    <!-- 
 	    <Logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG" additivity="false">
 	        <AppenderRef ref="console" />

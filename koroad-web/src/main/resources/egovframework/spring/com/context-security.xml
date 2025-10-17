@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!-- 
+        koroad-web 전용 Security 설정
+        
+        주의사항:
+        1. pattern 속성으로 특정 URL만 이 설정이 처리하고, 
+           나머지는 koroad-auth-security.xml의 기본 설정이 처리합니다.
+        2. 더 구체적인 패턴을 가진 http 블록이 먼저 오도록 순서를 지켜야 합니다.
+        3. 각 http 블록은 독립적이므로 entry-point-ref가 필요합니다.
+    -->
+
+    <!-- 관리자 페이지 보안 설정 (가장 구체적인 패턴) -->
+    <security:http pattern="/cop/bbs/*Master*.do" 
+                   use-expressions="true" 
+                   entry-point-ref="loginUrlAuthenticationEntryPoint">
+        <security:intercept-url pattern="/cop/bbs/*Master*.do" access="hasRole('ROLE_ADMIN')" />
+        <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
+        <security:csrf />
+    </security:http>
+
+    <!-- 게시판 공통 관리 보안 설정 -->
+    <security:http pattern="/cop/com/*.do" 
+                   use-expressions="true" 
+                   entry-point-ref="loginUrlAuthenticationEntryPoint">
+        <security:intercept-url pattern="/cop/com/*.do" access="isAuthenticated()" />
+        <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
+        <security:csrf />
+    </security:http>
+
+    <!-- 게시판 보안 설정 -->
+    <security:http pattern="/cop/bbs/*.do" 
+                   use-expressions="true" 
+                   entry-point-ref="loginUrlAuthenticationEntryPoint">
+        <security:intercept-url pattern="/cop/bbs/*.do" access="isAuthenticated()" />
+        <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
+        <security:csrf />
+    </security:http>
+
+    <!-- 일정관리 보안 설정 -->
+    <security:http pattern="/cop/smt/sim/*.do" 
+                   use-expressions="true" 
+                   entry-point-ref="loginUrlAuthenticationEntryPoint">
+        <security:intercept-url pattern="/cop/smt/sim/*.do" access="isAuthenticated()" />
+        <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
+        <security:csrf />
+    </security:http>
+
+    <!-- 
+        추가 보안 규칙 예시:
+        
+        <security:http pattern="/api/**" 
+                       use-expressions="true" 
+                       entry-point-ref="restAuthenticationEntryPoint">
+            <security:intercept-url pattern="/api/public/**" access="permitAll()" />
+            <security:intercept-url pattern="/api/**" access="isAuthenticated()" />
+            <security:csrf disabled="true" />
+        </security:http>
+        
+        <security:http pattern="/admin/**" 
+                       use-expressions="true" 
+                       entry-point-ref="loginUrlAuthenticationEntryPoint">
+            <security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')" />
+            <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
+            <security:csrf />
+        </security:http>
+    -->
+
+    <!-- 로그인 페이지로 리다이렉트하는 AuthenticationEntryPoint -->
+    <bean id="loginUrlAuthenticationEntryPoint" 
+          class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <constructor-arg value="/auth/login" />
+    </bean>
+
+    <!-- REST API용 401 응답을 반환하는 AuthenticationEntryPoint (예시) -->
+    <bean id="restAuthenticationEntryPoint" 
+          class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+
+</beans>
+

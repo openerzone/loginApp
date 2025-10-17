@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import egovframework.com.auth.AllbaroUser;
 import egovframework.com.cmm.EgovMessageSource;
 import kr.or.koroad.auth.service.KoroadUserDetails;
 import kr.or.koroad.auth.vo.LoginVO;
@@ -132,7 +133,7 @@ public class EgovBBSManageController {
      * @throws Exception
      */
     @RequestMapping("/cop/bbs/selectBoardList.do")
-    public String selectBoardArticles(HttpSession session, @AuthenticationPrincipal KoroadUserDetails user, 
+    public String selectBoardArticles(HttpSession session, @AuthenticationPrincipal AllbaroUser user, 
 			@RequestParam(value="menuNo", required=false) String menuNo,
     		@ModelAttribute("searchVO") BoardVO boardVO, 
     		ModelMap model) throws Exception {
