@@ -5,7 +5,7 @@ import java.util.Map;
 
 import egovframework.com.auth.AllbaroUser;
 import egovframework.com.cmm.EgovMessageSource;
-import kr.or.koroad.auth.service.KoroadUserDetails;
+import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 import kr.or.koroad.auth.vo.LoginVO;
 import egovframework.com.cmm.service.EgovFileMngService;
 import egovframework.com.cmm.service.EgovFileMngUtil;

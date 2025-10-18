@@ -6,7 +6,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import kr.or.koroad.auth.service.KoroadUserDetails;
+import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 import kr.or.koroad.auth.util.EgovPasswordEncoder;
 
 /**
@@ -34,7 +34,7 @@ public class KoroadDaoAuthenticationProvider extends DaoAuthenticationProvider {
 		}
 
 		String presentedPassword = authentication.getCredentials().toString();
-		String userId = ((KoroadUserDetails)userDetails).getUserId();
+		String userId = ((AbstractKoroadUserDetails)userDetails).getUserId();
 		
 		// EgovPasswordEncoder의 matchesWithSalt 메소드를 사용하여 검증
 		// username(ID)을 salt로 사용

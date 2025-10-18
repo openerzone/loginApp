@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import kr.or.koroad.auth.model.Account;
 
-public class KoroadUserDetails implements UserDetails{
+public abstract class AbstractKoroadUserDetails implements UserDetails{
 
 	/**
 	 * 
@@ -16,11 +16,10 @@ public class KoroadUserDetails implements UserDetails{
 	
 	private Account account;
 	
-	public KoroadUserDetails() {};
-	
-	protected KoroadUserDetails(Account account) {
+	protected AbstractKoroadUserDetails(Account account) {
 		this.account = account;
 	}
+	
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -29,18 +28,17 @@ public class KoroadUserDetails implements UserDetails{
 		return java.util.Collections.emptyList();
 	}
 
+	public String getUserId() {
+		return account.getMberId();
+	}
 	@Override
 	public String getPassword() {
 		return account.getPassword();
 	}
-
-	public String getUserId() {
-		return account.getMberId();
-	}
 	
 	@Override
-	public String getUsername() {
-		return account.getMberNm();
+	public final String getUsername() {
+		return account.getMberId();
 	}
 
 	@Override

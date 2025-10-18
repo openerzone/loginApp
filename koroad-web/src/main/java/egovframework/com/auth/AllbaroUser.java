@@ -1,37 +1,25 @@
 package egovframework.com.auth;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.security.core.GrantedAuthority;
 
 import egovframework.com.cmm.LoginVO;
-import kr.or.koroad.auth.service.KoroadUserDetails;
+import kr.or.koroad.auth.model.Account;
+import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 
-public class AllbaroUser extends KoroadUserDetails{
+public class AllbaroUser extends AbstractKoroadUserDetails{
 
 	private static final long serialVersionUID = 1L;
 	
-	private LoginVO login;
+	private LoginVO user;
 	
-	public AllbaroUser(LoginVO login) {
-		super();
-		this.login = login;
+	public AllbaroUser(Account account, LoginVO siteUser) {
+		super(account);
+		this.user = siteUser;
 	}
 	
-	@Override
-	public String getUserId() {
-		return login.getId();
-	}
-	
-	@Override
-	public String getUsername() {
-		return login.getName();
-	}
-	
-	@Override
-	public String getPassword() {
-		return login.getPassword();
-	}
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -40,4 +28,7 @@ public class AllbaroUser extends KoroadUserDetails{
 		return java.util.Collections.emptyList();
 	}
 
+	public String getEmail() {
+		return (this.user != null)? this.user.getEmail():null;
+	}
 }
