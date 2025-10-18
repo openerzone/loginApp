@@ -2,15 +2,21 @@ package kr.or.koroad.auth.web;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.egovframe.rte.fdl.cmmn.trace.LeaveaTrace;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.koroad.auth.service.OtpService;
 
 /**
  * 일반 로그인을 처리하는 컨트롤러 클래스
@@ -35,10 +41,16 @@ public class KoroadAuthController {
 
 	@Value("${auth.site.title}")
 	private String title;
+	
+	@Value("${auth.success.redirect.path}")
+	private String successRedirectPath;
 
 	/** EgovPropertyService */
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
+	
+	@Autowired
+	private OtpService otpService;
 	
 //	@Resource(name = "koroadAuthConfigure")
 //	private KoroadAuthConfigure koroadAuthConfigure;
@@ -86,6 +98,101 @@ public class KoroadAuthController {
     	model.addAttribute("title", title);
     	
     	return "/login";
+    }
+    
+    /**
+     * OTP 입력 페이지
+     */
+    @GetMapping("/otp")
+    public String otpPage(HttpServletRequest request, Model model) {
+    	HttpSession session = request.getSession();
+    	String username = (String) session.getAttribute("OTP_PENDING_USER");
+    	
+    	// OTP 인증 대기 상태가 아니면 로그인 페이지로 리다이렉트
+    	if (username == null) {
+    		return "redirect:/auth/login";
+    	}
+    	
+    	// 테스트용: OTP 코드 전달
+    	String otpCode = (String) session.getAttribute("OTP_CODE_FOR_TESTING");
+    	
+    	model.addAttribute("title", title);
+    	model.addAttribute("username", username);
+    	model.addAttribute("otpCode", otpCode);
+    	model.addAttribute("infoMessage", "OTP 인증번호가 발송되었습니다.");
+    	
+    	return "/otp";
+    }
+    
+    /**
+     * OTP 검증 처리
+     */
+    @PostMapping("/otp/verify")
+    public String verifyOtp(@RequestParam("otpCode") String otpCode,
+                           HttpServletRequest request,
+                           Model model) {
+    	
+    	HttpSession session = request.getSession();
+    	String username = (String) session.getAttribute("OTP_PENDING_USER");
+    	
+    	// OTP 인증 대기 상태가 아니면 로그인 페이지로 리다이렉트
+    	if (username == null) {
+    		return "redirect:/auth/login";
+    	}
+    	
+    	// OTP 검증
+    	boolean isValid = otpService.verifyOtp(username, otpCode);
+    	
+    	if (isValid) {
+    		// OTP 인증 성공
+    		session.setAttribute("OTP_AUTHENTICATED", true);
+    		session.removeAttribute("OTP_PENDING_USER");
+    		session.removeAttribute("OTP_CODE_FOR_TESTING");
+    		
+    		System.out.println("=== OTP 인증 성공 ===");
+    		System.out.println("사용자: " + username);
+    		System.out.println("최종 목적지로 리다이렉트: " + successRedirectPath);
+    		
+    		// 최종 목적지로 리다이렉트
+    		return "redirect:" + successRedirectPath;
+    	} else {
+    		// OTP 인증 실패
+    		String testOtp = (String) session.getAttribute("OTP_CODE_FOR_TESTING");
+    		
+    		model.addAttribute("title", title);
+    		model.addAttribute("username", username);
+    		model.addAttribute("otpCode", testOtp);
+    		model.addAttribute("errorMessage", "인증번호가 올바르지 않습니다. 다시 시도해주세요.");
+    		
+    		return "/otp";
+    	}
+    }
+    
+    /**
+     * OTP 재전송
+     */
+    @PostMapping("/otp/resend")
+    public String resendOtp(HttpServletRequest request, Model model) {
+    	HttpSession session = request.getSession();
+    	String username = (String) session.getAttribute("OTP_PENDING_USER");
+    	
+    	// OTP 인증 대기 상태가 아니면 로그인 페이지로 리다이렉트
+    	if (username == null) {
+    		return "redirect:/auth/login";
+    	}
+    	
+    	// 새로운 OTP 생성 및 발송
+    	String newOtpCode = otpService.resendOtp(username);
+    	
+    	// 테스트용: 세션에 새 OTP 코드 저장
+    	session.setAttribute("OTP_CODE_FOR_TESTING", newOtpCode);
+    	
+    	model.addAttribute("title", title);
+    	model.addAttribute("username", username);
+    	model.addAttribute("otpCode", newOtpCode);
+    	model.addAttribute("successMessage", "인증번호가 재전송되었습니다.");
+    	
+    	return "/otp";
     }
     
 }

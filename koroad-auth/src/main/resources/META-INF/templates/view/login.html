@@ -25,6 +25,11 @@
             text-align: center;
             margin-bottom: 30px;
         }
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
         .login-header h2 {
             color: #333;
             font-weight: 600;
@@ -111,8 +116,9 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h2 th:text="${@environment.getProperty('auth.login.title', '로그인')}">로그인</h2>
-            <p th:text="${title}">계정관리 시스템</p>
+            <img src="/auth/static/images/koroad.avif" alt="KOROAD 로고" class="logo">
+            <h2 th:text="${title}">계정관리 시스템</h2>
+            <p th:text="${@environment.getProperty('auth.login.title', '로그인')}">로그인</p>
         </div>
 
         <!-- 에러 메시지 -->
@@ -153,12 +159,13 @@
             <button type="submit" class="btn btn-login" th:text="${@environment.getProperty('auth.login.submit', '로그인')}">로그인</button>
         </form>
 
-        <!-- 데모 계정 정보 -->
+        <!-- 데모 계정 정보 
         <div class="demo-accounts">
             <h6>데모 계정</h6>
             <p><strong>일반 사용자:</strong> <code>user1</code> / <code>1</code></p>
             <p><strong>관리자:</strong> <code>admin</code> / <code>1</code></p>
         </div>
+        -->
     </div>
 
     <script src="/auth/static/bootstrap-4.0.0-dist/js/bootstrap.bundle.min.js"></script>

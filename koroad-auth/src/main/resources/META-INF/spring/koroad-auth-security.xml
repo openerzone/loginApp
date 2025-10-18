@@ -26,6 +26,9 @@
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/otp" access="permitAll()" />
+		<security:intercept-url pattern="/auth/otp/verify" access="permitAll()" />
+		<security:intercept-url pattern="/auth/otp/resend" access="permitAll()" />
         <security:intercept-url pattern="/static/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
 		
@@ -46,13 +49,16 @@
 		<constructor-arg ref="passwordEncoder" />
 		<property name="userDetailsService" ref="allbaroUserDetailsService" />
 	</bean>
+	
+	<!-- OTP 서비스 -->
+	<bean id="otpService" class="kr.or.koroad.auth.service.OtpService" />
 		
-	<!-- Custom AuthenticationSuccessHandler: 인증 성공 이후 추가적인 작업 처리 -->
-	<bean id="authenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
-		<property name="defaultTargetUrl" value="${auth.success.redirect.path}" />
+	<!-- Custom AuthenticationSuccessHandler: 인증 성공 후 OTP 화면으로 이동 -->
+	<bean id="authenticationSuccessHandler" class="kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler">
+		<property name="otpPageUrl" value="/auth/otp" />
 	</bean>
 		
-	<!-- Custom AuthenticationSuccessHandler: 인증 실패 이후 추가적인 작업 처리 -->
+	<!-- Custom AuthenticationFailureHandler: 인증 실패 이후 추가적인 작업 처리 -->
 	<bean id="authenticationFailureHandler" class="kr.or.koroad.auth.handler.KoroadAuthenticationFailureHandler" />
 
 	<bean id="logoutSuccessHandler" 

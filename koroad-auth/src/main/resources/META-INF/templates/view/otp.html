@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'OTP 인증 : ' + ${title}">OTP 인증</title>
+    <link href="/auth/static/bootstrap-4.0.0-dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .otp-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .otp-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .otp-header h2 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .otp-header p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .otp-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .otp-input-group {
+            display: flex;
+            justify-content: space-evenly;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+        .otp-input {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            transition: border-color 0.3s ease;
+        }
+        .otp-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        .btn-verify {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 500;
+            font-size: 16px;
+            width: 100%;
+            color: white;
+            transition: transform 0.2s ease;
+        }
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-resend {
+            background: transparent;
+            border: 1px solid #667eea;
+            color: #667eea;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+        }
+        .btn-resend:hover {
+            background: #667eea;
+            color: white;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            font-size: 14px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            font-size: 14px;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            font-size: 14px;
+        }
+        .otp-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+        .otp-info h6 {
+            color: #495057;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .otp-info p {
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        .otp-info code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #d63384;
+        }
+        .timer {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin: 12px 0;
+        }
+        .timer.expired {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <div class="otp-header">
+            <img src="/auth/static/images/koroad.avif" alt="KOROAD 로고" class="logo">
+            <!-- <div class="otp-icon">🔐</div> -->
+            <h2>OTP 인증</h2>
+            <p>6자리 인증번호를 입력해주세요.</p>
+        </div>
+
+        <!-- 에러 메시지 
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- 성공 메시지 
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- 정보 메시지 
+        <div th:if="${infoMessage}" class="alert alert-info" role="alert">
+            <span th:text="${infoMessage}"></span>
+        </div>
+        -->
+
+        <!-- 타이머 
+        <div class="timer" id="timer">
+            <span id="time-display">05:00</span>
+        </div>
+        -->
+
+        <!-- OTP 입력 폼 -->
+        <form th:action="@{/auth/otp/verify}" method="post" id="otpForm">
+            <div class="otp-input-group">
+                <input type="text" class="otp-input" maxlength="1" id="otp1" name="otp1" autocomplete="off" required>
+                <input type="text" class="otp-input" maxlength="1" id="otp2" name="otp2" autocomplete="off" required>
+                <input type="text" class="otp-input" maxlength="1" id="otp3" name="otp3" autocomplete="off" required>
+                <input type="text" class="otp-input" maxlength="1" id="otp4" name="otp4" autocomplete="off" required>
+                <input type="text" class="otp-input" maxlength="1" id="otp5" name="otp5" autocomplete="off" required>
+                <input type="text" class="otp-input" maxlength="1" id="otp6" name="otp6" autocomplete="off" required>
+            </div>
+
+            <!-- 히든 필드로 전체 OTP 코드 전송 -->
+            <input type="hidden" name="otpCode" id="otpCode">
+            
+            <!-- CSRF 토큰 -->
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            
+            <button type="submit" class="btn btn-verify">인증 확인</button>
+        </form>
+
+        <!-- 재전송 버튼 
+        <form th:action="@{/auth/otp/resend}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn btn-resend" id="resendBtn">인증번호 재전송</button>
+        </form>
+        -->
+
+        <!-- OTP 안내 정보 -->
+        <div class="otp-info">
+            <h6>💡 OTP 인증 안내</h6>
+            <p>• 인증번호는 5분간 유효합니다.</p>
+            <p>• <strong>테스트용:</strong> OTP 코드는 <code th:text="${otpCode}">123456</code> 입니다.</p>
+        </div>
+    </div>
+
+    <script src="/auth/static/bootstrap-4.0.0-dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // OTP 입력 자동 포커스 이동
+        const otpInputs = document.querySelectorAll('.otp-input');
+        
+        otpInputs.forEach((input, index) => {
+            // 숫자만 입력 가능
+            input.addEventListener('input', function(e) {
+                const value = this.value;
+                
+                // 숫자만 허용
+                this.value = value.replace(/[^0-9]/g, '');
+                
+                // 다음 입력 필드로 자동 이동
+                if (this.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                
+                // OTP 코드 업데이트
+                updateOtpCode();
+            });
+            
+            // 백스페이스 처리
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+            
+            // 붙여넣기 처리
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                
+                for (let i = 0; i < pastedData.length && (index + i) < otpInputs.length; i++) {
+                    otpInputs[index + i].value = pastedData[i];
+                }
+                
+                // 마지막 입력 필드로 포커스 이동
+                const lastFilledIndex = Math.min(index + pastedData.length - 1, otpInputs.length - 1);
+                otpInputs[lastFilledIndex].focus();
+                
+                updateOtpCode();
+            });
+        });
+        
+        // OTP 코드 업데이트 함수
+        function updateOtpCode() {
+            const otpCode = Array.from(otpInputs).map(input => input.value).join('');
+            document.getElementById('otpCode').value = otpCode;
+        }
+        
+        // 폼 제출 시 OTP 코드 최종 확인
+        document.getElementById('otpForm').addEventListener('submit', function(e) {
+            updateOtpCode();
+            const otpCode = document.getElementById('otpCode').value;
+            
+            if (otpCode.length !== 6) {
+                e.preventDefault();
+                alert('6자리 인증번호를 모두 입력해주세요.');
+                return false;
+            }
+        });
+        
+        /*
+        // 타이머 (5분)
+        let timeLeft = 300; // 5분 = 300초
+        const timerDisplay = document.getElementById('time-display');
+        const timerElement = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (timeLeft === 0) {
+                timerElement.classList.add('expired');
+                timerDisplay.textContent = '시간 만료';
+                otpInputs.forEach(input => input.disabled = true);
+                document.querySelector('.btn-verify').disabled = true;
+                resendBtn.focus();
+            } else {
+                timeLeft--;
+            }
+        }
+        
+        // 타이머 시작
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+        */
+        // 첫 번째 입력 필드에 포커스
+        otpInputs[0].focus();
+    </script>
+</body>
+</html>
+
