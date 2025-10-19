@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.egovframe.rte.fdl.cmmn.trace.LeaveaTrace;
@@ -56,6 +57,9 @@ public class KoroadAuthController {
 	
 	@Autowired
 	private OtpService otpService;
+	
+	@Autowired
+	private kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler otpAuthenticationSuccessHandler;
 	
 //	@Resource(name = "koroadAuthConfigure")
 //	private KoroadAuthConfigure koroadAuthConfigure;
@@ -150,6 +154,7 @@ public class KoroadAuthController {
     @PostMapping("/otp/verify")
     public String verifyOtp(@RequestParam("otpCode") String otpCode,
                            HttpServletRequest request,
+                           HttpServletResponse response,
                            Model model) {
     	
     	HttpSession session = request.getSession();
@@ -192,10 +197,19 @@ public class KoroadAuthController {
     		System.out.println("사용자: " + username);
     		System.out.println("ROLE_2FA_PENDING 제거됨");
     		System.out.println("최종 권한: " + finalAuthorities);
-    		System.out.println("최종 목적지로 리다이렉트: " + successRedirectPath);
     		
-    		// 최종 목적지로 리다이렉트
-    		return "redirect:" + successRedirectPath;
+    		// 최종 AuthenticationSuccessHandler 호출
+    		try {
+    			System.out.println("최종 AuthenticationSuccessHandler 실행");
+    			otpAuthenticationSuccessHandler.getFinalSuccessHandler()
+    				.onAuthenticationSuccess(request, response, finalAuth);
+    			return null; // 핸들러가 리다이렉트 처리함
+    		} catch (Exception e) {
+    			System.err.println("최종 핸들러 실행 중 오류 발생: " + e.getMessage());
+    			e.printStackTrace();
+    			// 폴백: 기본 리다이렉트
+    			return "redirect:" + successRedirectPath;
+    		}
     	} else {
     		// OTP 인증 실패
     		String testOtp = (String) session.getAttribute("OTP_CODE_FOR_TESTING");

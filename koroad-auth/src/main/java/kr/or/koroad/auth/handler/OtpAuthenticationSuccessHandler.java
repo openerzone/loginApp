@@ -3,11 +3,13 @@ package kr.or.koroad.auth.handler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
@@ -29,10 +32,27 @@ public class OtpAuthenticationSuccessHandler implements AuthenticationSuccessHan
 	@Autowired
 	private OtpService otpService;
 	
-	// 2FA가 비활성화된 경우 사용할 기본 핸들러
-    private final AuthenticationSuccessHandler defaultSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	// OTP 인증 완료 후 실행될 최종 핸들러 (외부에서 주입 가능)
+	private AuthenticationSuccessHandler finalSuccessHandler;
 	
 	private String otpPageUrl = "/auth/otp"; // OTP 입력 페이지 URL
+	
+	/**
+	 * 기본 생성자: SavedRequestAwareAuthenticationSuccessHandler를 최종 핸들러로 사용
+	 */
+	public OtpAuthenticationSuccessHandler() {
+		this.finalSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	}
+	
+	/**
+	 * 커스텀 최종 핸들러를 주입받는 생성자
+	 * @param finalSuccessHandler OTP 인증 완료 후 실행될 핸들러
+	 */
+	public OtpAuthenticationSuccessHandler(AuthenticationSuccessHandler finalSuccessHandler) {
+		this.finalSuccessHandler = finalSuccessHandler != null 
+				? finalSuccessHandler 
+				: new SavedRequestAwareAuthenticationSuccessHandler();
+	}
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -69,8 +89,9 @@ public class OtpAuthenticationSuccessHandler implements AuthenticationSuccessHan
             // 5. OTP 인증 페이지로 리디렉션
 			response.sendRedirect(request.getContextPath() + otpPageUrl);
 		} else {
-			// OTP가 비활성화된 경우, 기본 핸들러로 위임 (즉시 로그인 완료)
-            this.defaultSuccessHandler.onAuthenticationSuccess(request, response, authentication);
+			// OTP가 비활성화된 경우, 최종 핸들러로 위임 (즉시 로그인 완료)
+			System.out.println("=== OTP 비활성화 - 최종 핸들러로 위임 ===");
+            this.finalSuccessHandler.onAuthenticationSuccess(request, response, authentication);
 		}
 		/*
 		System.out.println("=== 로그인 성공 ===");
@@ -96,6 +117,24 @@ public class OtpAuthenticationSuccessHandler implements AuthenticationSuccessHan
 	
 	public void setOtpPageUrl(String otpPageUrl) {
 		this.otpPageUrl = otpPageUrl;
+	}
+	
+	/**
+	 * OTP 인증 완료 후 실행될 최종 핸들러 설정
+	 * @param finalSuccessHandler 최종 성공 핸들러
+	 */
+	public void setFinalSuccessHandler(AuthenticationSuccessHandler finalSuccessHandler) {
+		this.finalSuccessHandler = finalSuccessHandler != null 
+				? finalSuccessHandler 
+				: new SavedRequestAwareAuthenticationSuccessHandler();
+	}
+	
+	/**
+	 * 최종 핸들러 반환 (OTP 검증 후 사용)
+	 * @return 최종 성공 핸들러
+	 */
+	public AuthenticationSuccessHandler getFinalSuccessHandler() {
+		return this.finalSuccessHandler;
 	}
 }
 

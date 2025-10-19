@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 
+        koroad-web 전용 인증 핸들러 설정
+        
+        이 설정은 koroad-auth 모듈의 OtpAuthenticationSuccessHandler가
+        OTP 인증 완료 후 호출할 최종 핸들러를 정의합니다.
+    -->
+
+    <!-- 커스텀 인증 성공 핸들러 -->
+    <bean id="customAuthenticationSuccessHandler" 
+          class="egovframework.com.auth.CustomAuthenticationSuccessHandler">
+        <!-- 추가 프로퍼티가 있다면 여기서 설정 -->
+    </bean>
+
+    <!-- 
+        koroad-auth의 authenticationSuccessHandler 빈을 재정의하여
+        finalSuccessHandler를 주입합니다.
+        
+        주의: 이 빈은 koroad-auth-security.xml의 authenticationSuccessHandler를
+        오버라이드하므로, 빈 이름이 동일해야 합니다.
+    -->
+    <bean id="authenticationSuccessHandler" 
+          class="kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler">
+        <property name="otpPageUrl" value="/auth/otp" />
+        <property name="finalSuccessHandler" ref="customAuthenticationSuccessHandler" />
+    </bean>
+
+    <!-- 
+        사용 예시:
+        
+        1. 기본 동작 (커스텀 핸들러 미사용):
+           - koroad-auth-security.xml의 기본 설정 사용
+           - SavedRequestAwareAuthenticationSuccessHandler로 리다이렉트
+        
+        2. 커스텀 핸들러 사용 (현재 설정):
+           - CustomAuthenticationSuccessHandler가 실행됨
+           - OTP 인증 완료 후 커스텀 로직 수행
+           - 로그인 이력 저장, 사용자 설정 로드 등 가능
+    -->
+
+</beans>
+
