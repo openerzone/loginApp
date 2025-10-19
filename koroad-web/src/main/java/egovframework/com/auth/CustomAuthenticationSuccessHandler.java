@@ -7,23 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 /**
  * koroad-web 전용 커스텀 인증 성공 핸들러
  * OTP 인증 완료 후 실행됨
+ * 
+ * SavedRequestAwareAuthenticationSuccessHandler를 상속받아
+ * 저장된 요청(SavedRequest) 처리를 자동으로 지원합니다.
  */
-public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
-	@Value("${auth.success.redirect.path:/}")
-	private String defaultTargetUrl;
-	
-	// 기본 핸들러를 Delegation으로 사용
-	private final AuthenticationSuccessHandler defaultHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
@@ -43,11 +38,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		// 예: 로그인 이력 DB 저장, 사용자별 설정 로드, 알림 발송 등
 		
 		System.out.println("커스텀 로직 실행 완료");
-		System.out.println("기본 리다이렉트 처리: " + defaultTargetUrl);
 		System.out.println("====================================");
 		
-		// 기본 핸들러로 위임 (SavedRequest 처리 + 리다이렉트)
-		defaultHandler.onAuthenticationSuccess(request, response, authentication);
+		// 부모 클래스의 기본 동작 실행 (SavedRequest 처리 + 리다이렉트)
+		super.onAuthenticationSuccess(request, response, authentication);
 	}
 }
 

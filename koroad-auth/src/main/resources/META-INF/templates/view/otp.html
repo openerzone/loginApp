@@ -107,7 +107,7 @@
         .alert {
             border-radius: 8px;
             border: none;
-            padding: 12px 15px;
+            padding: 12px 12px;
             margin-bottom: 20px;
         }
         .alert-danger {
@@ -183,7 +183,7 @@
             <p>6자리 인증번호를 입력해주세요.</p>
         </div>
 
-        <!-- 에러 메시지 
+        <!-- 에러 메시지 -->
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
             <span th:text="${errorMessage}"></span>
         </div>
