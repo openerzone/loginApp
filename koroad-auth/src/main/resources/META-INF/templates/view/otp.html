@@ -160,6 +160,18 @@
         .timer.expired {
             color: #dc3545;
         }
+        .customer-service {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+            font-size: 13px;
+            color: #6c757d;
+        }
+        .customer-service .emoji {
+            font-size: 16px;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -225,6 +237,12 @@
             <h6>💡 OTP 인증 안내</h6>
             <p>• 인증번호는 5분간 유효합니다.</p>
             <p>• <strong>테스트용:</strong> OTP 코드는 <code th:text="${otpCode}">123456</code> 입니다.</p>
+        </div>
+        
+        <!-- 고객센터 정보 -->
+        <div class="customer-service">
+            <span class="emoji">☎️</span>
+            <span>고객센터 : 02-1234-5678</span>
         </div>
     </div>
 
