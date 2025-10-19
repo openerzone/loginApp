@@ -21,14 +21,17 @@
         <!-- 로그아웃 설정 -->
         <security:logout
             logout-url="/auth/logout"      
-            success-handler-ref="logoutSuccessHandler" />              
+            success-handler-ref="logoutSuccessHandler" />
+        
+        <!-- OTP 인증 대기 상태 필터 (인증 후, Authorization 전에 실행) -->
+        <security:custom-filter ref="otpPendingFilter" after="BASIC_AUTH_FILTER" />
                          
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp" access="isAuthenticated()" />
-		<security:intercept-url pattern="/auth/otp/verify" access="permitAll()" />
-		<security:intercept-url pattern="/auth/otp/resend" access="permitAll()" />
+		<security:intercept-url pattern="/auth/otp/verify" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/otp/resend" access="isAuthenticated()" />
         <security:intercept-url pattern="/static/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
 		
@@ -52,6 +55,14 @@
 	
 	<!-- OTP 서비스 -->
 	<bean id="otpService" class="kr.or.koroad.auth.service.OtpService" />
+	
+	<!-- OTP 인증 대기 상태 필터 -->
+	<bean id="otpPendingFilter" class="kr.or.koroad.auth.filter.OtpPendingFilter">
+		<property name="otpPageUrl" value="/auth/otp" />
+		<property name="otpVerifyUrl" value="/auth/otp/verify" />
+		<property name="otpResendUrl" value="/auth/otp/resend" />
+		<property name="logoutUrl" value="/auth/logout" />
+	</bean>
 		
 	<!-- Custom AuthenticationSuccessHandler: 인증 성공 후 OTP 화면으로 이동 -->
 	<bean id="authenticationSuccessHandler" class="kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler">
