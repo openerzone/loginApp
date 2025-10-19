@@ -41,6 +41,10 @@ public abstract class AbstractKoroadUserDetails implements UserDetails{
 		return account.getMberId();
 	}
 
+	public boolean isOtpEnabled() {
+		return true;
+	}
+	
 	@Override
 	public boolean isAccountNonExpired() {
 		// 계정 만료 여부 (true = 만료되지 않음)

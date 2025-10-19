@@ -15,9 +15,9 @@ public class AllbaroUser extends AbstractKoroadUserDetails{
 	
 	private LoginVO user;
 	
-	public AllbaroUser(Account account, LoginVO siteUser) {
+	public AllbaroUser(Account account, Optional<LoginVO> siteUser) {
 		super(account);
-		this.user = siteUser;
+		this.user = (siteUser.isEmpty())? new LoginVO() : siteUser.get();
 	}
 	
 	
@@ -29,6 +29,6 @@ public class AllbaroUser extends AbstractKoroadUserDetails{
 	}
 
 	public String getEmail() {
-		return (this.user != null)? this.user.getEmail():null;
+		return this.user.getEmail();
 	}
 }

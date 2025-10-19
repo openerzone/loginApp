@@ -1,5 +1,7 @@
 package kr.or.koroad.auth.web;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -8,7 +10,9 @@ import org.egovframe.rte.fdl.cmmn.trace.LeaveaTrace;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 import kr.or.koroad.auth.service.OtpService;
 
 /**
@@ -105,23 +110,38 @@ public class KoroadAuthController {
      */
     @GetMapping("/otp")
     public String otpPage(HttpServletRequest request, Model model) {
-    	HttpSession session = request.getSession();
-    	String username = (String) session.getAttribute("OTP_PENDING_USER");
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) authentication.getPrincipal();
+        
+    	// Authentication 객체의 권한을 확인 (UserDetails가 아님!)
+    	boolean isOtpEnabled = authentication.getAuthorities().stream()
+    			.anyMatch(a -> a.getAuthority().equals("ROLE_2FA_PENDING"));
     	
-    	// OTP 인증 대기 상태가 아니면 로그인 페이지로 리다이렉트
-    	if (username == null) {
+    	if (isOtpEnabled) {
+    		System.out.println("=== OTP 인증 페이지 접근 ===");
+    		System.out.println("사용자: " + userDetails.getUsername());
+    		System.out.println("ROLE_2FA_PENDING 권한 확인됨");
+    		
+    		// OTP 생성
+    		String username = userDetails.getUsername();
+    		String otpCode = otpService.generateOtp(username);
+    		
+    		// 세션에 OTP 인증 대기 상태 저장
+    		HttpSession session = request.getSession();
+    		session.setAttribute("OTP_PENDING_USER", username);
+    		session.setAttribute("OTP_AUTHENTICATED", false);
+    		session.setAttribute("OTP_CODE_FOR_TESTING", otpCode);
+    		
+    		model.addAttribute("title", title);
+    		model.addAttribute("username", username);
+    		model.addAttribute("otpCode", otpCode);
+    		model.addAttribute("infoMessage", "OTP 인증번호가 발송되었습니다.");
+    		
+    		return "/otp";
+    	} else {
+    		System.out.println("ROLE_2FA_PENDING not exists - 로그인 페이지로 리다이렉트");
     		return "redirect:/auth/login";
     	}
-    	
-    	// 테스트용: OTP 코드 전달
-    	String otpCode = (String) session.getAttribute("OTP_CODE_FOR_TESTING");
-    	
-    	model.addAttribute("title", title);
-    	model.addAttribute("username", username);
-    	model.addAttribute("otpCode", otpCode);
-    	model.addAttribute("infoMessage", "OTP 인증번호가 발송되었습니다.");
-    	
-    	return "/otp";
     }
     
     /**
@@ -149,8 +169,29 @@ public class KoroadAuthController {
     		session.removeAttribute("OTP_PENDING_USER");
     		session.removeAttribute("OTP_CODE_FOR_TESTING");
     		
+    		// ROLE_2FA_PENDING 권한 제거
+    		Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+    		AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) currentAuth.getPrincipal();
+    		
+    		// ROLE_2FA_PENDING을 제외한 원래 권한만 유지
+    		List<GrantedAuthority> finalAuthorities = currentAuth.getAuthorities().stream()
+    				.filter(auth -> !auth.getAuthority().equals("ROLE_2FA_PENDING"))
+    				.collect(java.util.stream.Collectors.toList());
+    		
+    		// 최종 인증 객체 생성 (원래 권한만 포함)
+    		Authentication finalAuth = new UsernamePasswordAuthenticationToken(
+    				userDetails,
+    				null,
+    				finalAuthorities
+    		);
+    		
+    		// SecurityContext 업데이트
+    		SecurityContextHolder.getContext().setAuthentication(finalAuth);
+    		
     		System.out.println("=== OTP 인증 성공 ===");
     		System.out.println("사용자: " + username);
+    		System.out.println("ROLE_2FA_PENDING 제거됨");
+    		System.out.println("최종 권한: " + finalAuthorities);
     		System.out.println("최종 목적지로 리다이렉트: " + successRedirectPath);
     		
     		// 최종 목적지로 리다이렉트

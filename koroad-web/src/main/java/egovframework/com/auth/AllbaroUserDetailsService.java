@@ -28,7 +28,7 @@ public class AllbaroUserDetailsService extends AbstractKoroadUserDetailsService 
 		Optional<LoginVO> optionalUser = loginDAO.searchId(param);
 		
 		// Optional이 값을 가지고 있으면 AllbaroUser로 변환
-		return new AllbaroUser(account, optionalUser.get());
+		return new AllbaroUser(account, optionalUser);
 	}
 
 }

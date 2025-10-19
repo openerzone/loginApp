@@ -26,7 +26,7 @@
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
-		<security:intercept-url pattern="/auth/otp" access="permitAll()" />
+		<security:intercept-url pattern="/auth/otp" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp/verify" access="permitAll()" />
 		<security:intercept-url pattern="/auth/otp/resend" access="permitAll()" />
         <security:intercept-url pattern="/static/**" access="permitAll()" />
