@@ -23,8 +23,11 @@
             logout-url="/auth/logout"      
             success-handler-ref="logoutSuccessHandler" />
         
-        <!-- OTP 인증 대기 상태 필터 (인증 후, Authorization 전에 실행) -->
-        <security:custom-filter ref="otpPendingFilter" after="BASIC_AUTH_FILTER" />
+        <!-- 비밀번호 변경 필요 필터 (인증 후 가장 먼저 실행) -->
+        <security:custom-filter ref="passwordChangeRequiredFilter" after="BASIC_AUTH_FILTER" />
+        
+        <!-- OTP 인증 대기 상태 필터 (비밀번호 변경 필터 이후 실행) -->
+        <security:custom-filter ref="otpPendingFilter" before="FILTER_SECURITY_INTERCEPTOR" />
                          
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
@@ -32,6 +35,8 @@
 		<security:intercept-url pattern="/auth/otp" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp/verify" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp/resend" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/change-password" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/change-password/process" access="isAuthenticated()" />
         <security:intercept-url pattern="/static/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
 		
@@ -63,6 +68,13 @@
 		<property name="otpResendUrl" value="/auth/otp/resend" />
 		<property name="logoutUrl" value="/auth/logout" />
 	</bean>
+	
+	<!-- 비밀번호 변경 필요 필터 -->
+	<bean id="passwordChangeRequiredFilter" class="kr.or.koroad.auth.filter.PasswordChangeRequiredFilter">
+		<property name="changePasswordUrl" value="/auth/change-password" />
+		<property name="changePasswordProcessUrl" value="/auth/change-password/process" />
+		<property name="logoutUrl" value="/auth/logout" />
+	</bean>
 		
 	<!-- Custom AuthenticationSuccessHandler: 인증 성공 후 OTP 화면으로 이동 -->
 	<bean id="authenticationSuccessHandler" class="kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler">
@@ -70,7 +82,9 @@
 	</bean>
 		
 	<!-- Custom AuthenticationFailureHandler: 인증 실패 이후 추가적인 작업 처리 -->
-	<bean id="authenticationFailureHandler" class="kr.or.koroad.auth.handler.KoroadAuthenticationFailureHandler" />
+	<bean id="authenticationFailureHandler" class="kr.or.koroad.auth.handler.KoroadAuthenticationFailureHandler">
+		<property name="changePasswordUrl" value="/auth/change-password" />
+	</bean>
 
 	<bean id="logoutSuccessHandler" 
 	      class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">

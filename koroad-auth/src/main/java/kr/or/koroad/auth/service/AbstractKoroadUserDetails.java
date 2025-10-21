@@ -60,7 +60,9 @@ public abstract class AbstractKoroadUserDetails implements UserDetails{
 	@Override
 	public boolean isCredentialsNonExpired() {
 		// 자격증명 만료 여부 (true = 만료되지 않음)
-		return true;
+		// Account의 비밀번호 만료일 체크
+//		return account.isPasswordNonExpired();
+		return false;
 	}
 
 	@Override

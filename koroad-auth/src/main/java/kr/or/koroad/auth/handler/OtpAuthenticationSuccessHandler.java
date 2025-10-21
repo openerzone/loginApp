@@ -60,7 +60,11 @@ public class OtpAuthenticationSuccessHandler implements AuthenticationSuccessHan
 		
 		// 인증된 사용자 정보 가져오기
 		AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) authentication.getPrincipal();
-
+		
+		// 참고: 비밀번호 만료는 AuthenticationFailureHandler에서 처리됨
+		// (isCredentialsNonExpired() == false 시 CredentialsExpiredException 발생)
+		
+		// OTP 활성화 체크
 		boolean isOptEnabled = userDetails.isOtpEnabled();
 		
 		if (isOptEnabled) {

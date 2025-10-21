@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 import kr.or.koroad.auth.service.OtpService;
+import kr.or.koroad.auth.util.EgovPasswordEncoder;
 
 /**
  * 일반 로그인을 처리하는 컨트롤러 클래스
@@ -60,6 +61,9 @@ public class KoroadAuthController {
 	
 	@Autowired
 	private kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler otpAuthenticationSuccessHandler;
+	
+	@Autowired
+	private EgovPasswordEncoder passwordEncoder;
 	
 //	@Resource(name = "koroadAuthConfigure")
 //	private KoroadAuthConfigure koroadAuthConfigure;
@@ -248,6 +252,107 @@ public class KoroadAuthController {
     	model.addAttribute("successMessage", "인증번호가 재전송되었습니다.");
     	
     	return "/otp";
+    }
+    
+    /**
+     * 비밀번호 변경 페이지
+     */
+    @GetMapping("/change-password")
+    public String changePasswordPage(Model model) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	
+    	// 인증되지 않았으면 로그인 페이지로
+    	if (authentication == null || !authentication.isAuthenticated()) {
+    		return "redirect:/auth/login";
+    	}
+    	
+    	// ROLE_PASSWORD_CHANGE_REQUIRED 권한 확인
+    	boolean isPasswordChangeRequired = authentication.getAuthorities().stream()
+    			.anyMatch(auth -> auth.getAuthority().equals("ROLE_PASSWORD_CHANGE_REQUIRED"));
+    	
+    	AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) authentication.getPrincipal();
+    	
+    	model.addAttribute("title", title);
+    	model.addAttribute("username", userDetails.getUsername());
+    	
+    	if (isPasswordChangeRequired) {
+    		model.addAttribute("infoMessage", "비밀번호가 만료되었습니다. 새로운 비밀번호로 변경해주세요.");
+    	}
+    	
+    	return "/change-password";
+    }
+    
+    /**
+     * 비밀번호 변경 처리
+     */
+    @PostMapping("/change-password/process")
+    public String changePasswordProcess(@RequestParam("currentPassword") String currentPassword,
+                                       @RequestParam("newPassword") String newPassword,
+                                       @RequestParam("confirmPassword") String confirmPassword,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response,
+                                       Model model) {
+    	
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	
+    	// 인증되지 않았으면 로그인 페이지로
+    	if (authentication == null || !authentication.isAuthenticated()) {
+    		return "redirect:/auth/login";
+    	}
+    	
+    	AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) authentication.getPrincipal();
+    	String username = userDetails.getUsername();
+    	
+    	model.addAttribute("title", title);
+    	model.addAttribute("username", username);
+    	
+    	// 1. 새 비밀번호와 확인 비밀번호 일치 확인
+    	if (!newPassword.equals(confirmPassword)) {
+    		model.addAttribute("errorMessage", "새 비밀번호가 일치하지 않습니다.");
+    		return "/change-password";
+    	}
+    	
+    	// 2. 현재 비밀번호 검증
+    	boolean isCurrentPasswordValid = passwordEncoder.matchesWithSalt(
+    			currentPassword, 
+    			userDetails.getPassword(), 
+    			username
+    	);
+    	
+    	if (!isCurrentPasswordValid) {
+    		model.addAttribute("errorMessage", "현재 비밀번호가 올바르지 않습니다.");
+    		return "/change-password";
+    	}
+    	
+    	// 3. TODO: 실제 DB 업데이트 로직 (여기서는 로그만 출력)
+    	System.out.println("=== 비밀번호 변경 요청 ===");
+    	System.out.println("사용자: " + username);
+    	System.out.println("비밀번호 변경 성공");
+    	
+    	// 4. ROLE_PASSWORD_CHANGE_REQUIRED 권한 제거
+    	List<GrantedAuthority> finalAuthorities = authentication.getAuthorities().stream()
+    			.filter(auth -> !auth.getAuthority().equals("ROLE_PASSWORD_CHANGE_REQUIRED"))
+    			.collect(java.util.stream.Collectors.toList());
+    	
+    	Authentication finalAuth = new UsernamePasswordAuthenticationToken(
+    			userDetails,
+    			null,
+    			finalAuthorities
+    	);
+    	
+    	SecurityContextHolder.getContext().setAuthentication(finalAuth);
+    	
+    	// 5. 최종 핸들러 호출
+    	try {
+    		System.out.println("비밀번호 변경 완료 - 최종 핸들러 실행");
+    		otpAuthenticationSuccessHandler.getFinalSuccessHandler()
+    			.onAuthenticationSuccess(request, response, finalAuth);
+    		return null;
+    	} catch (Exception e) {
+    		System.err.println("최종 핸들러 실행 중 오류: " + e.getMessage());
+    		e.printStackTrace();
+    		return "redirect:" + successRedirectPath;
+    	}
     }
     
 }
