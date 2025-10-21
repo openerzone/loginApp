@@ -83,17 +83,17 @@ public class OtpPendingFilter extends OncePerRequestFilter {
 		}
 		
 		// 정적 리소스 허용
-		if (path.startsWith("/static/") 
-				|| path.startsWith("/css/") 
-				|| path.startsWith("/js/") 
-				|| path.startsWith("/images/")
-				|| path.endsWith(".css")
-				|| path.endsWith(".js")
-				|| path.endsWith(".png")
-				|| path.endsWith(".jpg")
-				|| path.endsWith(".gif")
-				|| path.endsWith(".ico")
-				|| path.endsWith(".avif")) {
+		if (path.startsWith("/auth/static/") ) {
+//				|| path.startsWith("/css/") 
+//				|| path.startsWith("/js/") 
+//				|| path.startsWith("/images/")
+//				|| path.endsWith(".css")
+//				|| path.endsWith(".js")
+//				|| path.endsWith(".png")
+//				|| path.endsWith(".jpg")
+//				|| path.endsWith(".gif")
+//				|| path.endsWith(".ico")
+//				|| path.endsWith(".avif")) {
 			return true;
 		}
 		
