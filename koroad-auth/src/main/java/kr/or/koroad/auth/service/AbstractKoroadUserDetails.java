@@ -1,8 +1,11 @@
 package kr.or.koroad.auth.service;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import kr.or.koroad.auth.model.Account;
@@ -16,6 +19,8 @@ public abstract class AbstractKoroadUserDetails implements UserDetails{
 	
 	private Account account;
 	
+	private Set<GrantedAuthority> authorities = new HashSet<>();
+	
 	protected AbstractKoroadUserDetails(Account account) {
 		this.account = account;
 	}
@@ -23,16 +28,33 @@ public abstract class AbstractKoroadUserDetails implements UserDetails{
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO: 권한 정보를 데이터베이스에서 조회하여 반환하도록 구현 필요
-		// 임시로 빈 컬렉션 반환
-		return java.util.Collections.emptyList();
+		return this.authorities;
 	}
-
+	// --- 권한 추가 메소드 (기존) ---
+    public void addAuthority(GrantedAuthority authority) {
+        this.authorities.add(authority);
+    }
+    
+    public void addAuthority(String roleName) {
+    	this.authorities.add(new SimpleGrantedAuthority(roleName));
+    }
+    
+    // --- 권한 삭제 메소드 (새로 추가) 🚀 ---
+    /**
+     * 지정된 이름의 권한(Role)을 authorities Set에서 제거합니다.
+     * @param roleName 제거할 권한 이름 (예: "ROLE_USER")
+     * @return 성공적으로 제거했는지 여부
+     */
+    public boolean removeAuthority(String roleName) {
+        // SimpleGrantedAuthority 객체를 생성하여 Set에서 제거
+        return this.authorities.remove(new SimpleGrantedAuthority(roleName));
+    }
+    
 	public String getUserId() {
 		return account.getMberId();
 	}
 	@Override
-	public String getPassword() {
+	public final String getPassword() {
 		return account.getPassword();
 	}
 	
@@ -62,7 +84,7 @@ public abstract class AbstractKoroadUserDetails implements UserDetails{
 		// 자격증명 만료 여부 (true = 만료되지 않음)
 		// Account의 비밀번호 만료일 체크
 //		return account.isPasswordNonExpired();
-		return false;
+		return true;
 	}
 
 	@Override

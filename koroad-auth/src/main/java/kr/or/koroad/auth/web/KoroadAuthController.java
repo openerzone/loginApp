@@ -59,8 +59,8 @@ public class KoroadAuthController {
 	@Autowired
 	private OtpService otpService;
 	
-	@Autowired
-	private kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler otpAuthenticationSuccessHandler;
+//	@Autowired
+//	private kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler otpAuthenticationSuccessHandler;
 	
 	@Autowired
 	private EgovPasswordEncoder passwordEncoder;
@@ -205,8 +205,8 @@ public class KoroadAuthController {
     		// 최종 AuthenticationSuccessHandler 호출
     		try {
     			System.out.println("최종 AuthenticationSuccessHandler 실행");
-    			otpAuthenticationSuccessHandler.getFinalSuccessHandler()
-    				.onAuthenticationSuccess(request, response, finalAuth);
+//    			otpAuthenticationSuccessHandler.getFinalSuccessHandler()
+//    				.onAuthenticationSuccess(request, response, finalAuth);
     			return null; // 핸들러가 리다이렉트 처리함
     		} catch (Exception e) {
     			System.err.println("최종 핸들러 실행 중 오류 발생: " + e.getMessage());
@@ -345,8 +345,8 @@ public class KoroadAuthController {
     	// 5. 최종 핸들러 호출
     	try {
     		System.out.println("비밀번호 변경 완료 - 최종 핸들러 실행");
-    		otpAuthenticationSuccessHandler.getFinalSuccessHandler()
-    			.onAuthenticationSuccess(request, response, finalAuth);
+//    		otpAuthenticationSuccessHandler.getFinalSuccessHandler()
+//    			.onAuthenticationSuccess(request, response, finalAuth);
     		return null;
     	} catch (Exception e) {
     		System.err.println("최종 핸들러 실행 중 오류: " + e.getMessage());

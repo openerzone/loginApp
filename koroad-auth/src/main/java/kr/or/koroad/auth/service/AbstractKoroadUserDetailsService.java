@@ -20,7 +20,12 @@ public abstract class AbstractKoroadUserDetailsService implements UserDetailsSer
 		Account account = accountMapper.selectAccountById(username).orElseThrow(() -> new UsernameNotFoundException("Not found loginId : " + username));
 		
 		
-		return loadSiteUserByAccount(account);
+		AbstractKoroadUserDetails loadedUser = (AbstractKoroadUserDetails)loadSiteUserByAccount(account);
+		
+		if (loadedUser.isOtpEnabled())
+			loadedUser.addAuthority("ROLE_2FA_PENDING");
+		
+		return loadedUser;
 	}
 
 	public abstract UserDetails loadSiteUserByAccount(Account account);

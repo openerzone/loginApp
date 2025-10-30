@@ -16,17 +16,22 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  */
 public class KoroadAuthenticationSuccessHandler implements AuthenticationSuccessHandler{
 
-	private String redirectPath;
-	
-	public void setRedirectPath(String redirectPath) {
-		this.redirectPath = redirectPath;
-	}
+	private String otpPath;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		// 로그인 성공 후 메인 페이지로 리다이렉트
-        response.sendRedirect(redirectPath);
+		// ROLE_2FA_PENDING 권한 존재시 otp 페이지로
+		boolean has2FAPendingRole = authentication.getAuthorities().stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_2FA_PENDING"));
+		
+		if (has2FAPendingRole)
+			response.sendRedirect(otpPath);
+		else
+			response.sendRedirect("/cmm/main/mainPage.do");
 	}
 
+	public void setOtpPath(String otpPath) {
+		this.otpPath = otpPath;
+	}
 }

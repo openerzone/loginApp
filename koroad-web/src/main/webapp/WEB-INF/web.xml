@@ -86,9 +86,20 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			classpath*:egovframework/spring/com/context-*.xml
+			classpath*:egovframework/spring/com/context-datasource.xml
+			classpath*:egovframework/spring/com/context-properties.xml
+			classpath*:egovframework/spring/com/context-common.xml
+			classpath*:egovframework/spring/com/context-mapper.xml
+			classpath*:egovframework/spring/com/context-transaction.xml
+			classpath*:egovframework/spring/com/context-idgen.xml
+			classpath*:egovframework/spring/com/context-aspect.xml
+			classpath*:egovframework/spring/com/context-validator.xml
+			classpath*:egovframework/spring/com/context-crypto.xml
+			classpath*:egovframework/spring/com/context-whitelist.xml
 			classpath*:META-INF/spring/koroad-auth-context.xml
 			classpath*:META-INF/spring/koroad-auth-security.xml
+			classpath*:egovframework/spring/com/context-auth.xml
+			classpath*:egovframework/spring/com/context-security.xml
 		</param-value>
 	</context-param>
 	
