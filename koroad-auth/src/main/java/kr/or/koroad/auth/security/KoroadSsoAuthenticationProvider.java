@@ -5,6 +5,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
+import kr.or.koroad.auth.authentication.SsoAuthenticationToken;
 import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 
 public class KoroadSsoAuthenticationProvider implements AuthenticationProvider {
@@ -28,7 +29,7 @@ public class KoroadSsoAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+		return (SsoAuthenticationToken.class.isAssignableFrom(authentication));
 	}
 
 }

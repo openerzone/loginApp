@@ -7,8 +7,8 @@
                            http://www.springframework.org/schema/security
                            http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <!-- Security Configuration -->
-    <security:http auto-config="true" use-expressions="true">
+    <!-- Security Configuration: /auth/** 패턴만 처리 -->
+    <security:http pattern="/auth/**" auto-config="true" use-expressions="true">
         <!-- Login Configuration -->
         <security:form-login 
             login-page="/auth/login"
@@ -23,17 +23,21 @@
             logout-url="/auth/logout"      
             success-handler-ref="logoutSuccessHandler" />
         
+        <security:custom-filter ref="otpAuthenticationFilter" before="FORM_LOGIN_FILTER" />
+        
         <!-- 비밀번호 변경 필요 필터 (인증 후 가장 먼저 실행) -->
         <security:custom-filter ref="passwordChangeRequiredFilter" after="BASIC_AUTH_FILTER" />
         
-        <!-- OTP 인증 대기 상태 필터 (비밀번호 변경 필터 이후 실행) -->
+        <!-- OTP 인증 대기 상태 필터 (비밀번호 변경 필터 이후 실행) 
         <security:custom-filter ref="otpPendingFilter" before="FILTER_SECURITY_INTERCEPTOR" />
+        -->
                          
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp/verify" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/otp/verify" access="hasAnyRole('ROLE_2FA_PENDING')" method="POST"/>
 		<security:intercept-url pattern="/auth/otp/resend" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/change-password" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/change-password/process" access="isAuthenticated()" />
@@ -45,22 +49,34 @@
     </security:http>
 
     <!-- Authentication Manager -->
-    <security:authentication-manager>
-        <!-- Custom AuthenticationProvider 사용 (ID를 salt로 사용하는 비밀번호 검증) -->
-        <security:authentication-provider ref="koroadAuthenticationProvider" />
-    </security:authentication-manager>
-    
+    <security:authentication-manager id="authenticationManager">
+        <security:authentication-provider ref="koroadDaoAuthenticationProvider" />
+        <security:authentication-provider ref="koroadOtpAuthenticationProvider" />
+    </security:authentication-manager>   
     <!-- EgovPasswordEncoder: EgovFileScrty.encryptPassword 메소드를 사용하는 인코더 -->
 	<bean id="passwordEncoder" class="kr.or.koroad.auth.util.EgovPasswordEncoder" />
 	
+	<!-- OTP 서비스: @Service로 자동 생성되지만, 명시적으로 선언하여 Root Context에서만 생성되도록 보장 -->
+	<bean id="otpService" class="kr.or.koroad.auth.service.OtpService" scope="singleton" />
+	
 	<!-- Custom AuthenticationProvider: 사용자 ID를 salt로 사용하는 비밀번호 검증 -->
-	<bean id="koroadAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadDaoAuthenticationProvider">
+	<bean id="koroadDaoAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadDaoAuthenticationProvider">
 		<constructor-arg ref="passwordEncoder" />
 		<property name="userDetailsService" ref="allbaroUserDetailsService" />
 	</bean>
 	
-	<!-- OTP 서비스 -->
-	<bean id="otpService" class="kr.or.koroad.auth.service.OtpService" />
+	<!-- OTP AuthenticationProvider -->
+	<bean id="koroadOtpAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadOtpAuthenticationProvider">
+		<property name="userDetailsService" ref="allbaroUserDetailsService" />
+		<property name="otpService" ref="otpService" />
+	</bean>
+	
+	<!-- OTP 인증 필터: 검증 성공 시 최종 핸들러로 이동해야 하므로 finalSuccessHandler 사용 -->
+	<bean id="otpAuthenticationFilter" class="kr.or.koroad.auth.filter.OtpAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationSuccessHandler" ref="finalSuccessHandler" />
+        <property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
+    </bean>
 	
 	<!-- OTP 인증 대기 상태 필터 -->
 	<bean id="otpPendingFilter" class="kr.or.koroad.auth.filter.OtpPendingFilter">

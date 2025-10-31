@@ -30,4 +30,13 @@ public abstract class AbstractKoroadUserDetailsService implements UserDetailsSer
 
 	public abstract UserDetails loadSiteUserByAccount(Account account);
 	
+	/**
+	 * OTP 검증 후 최종 권한을 로드할 때 사용하는 메서드
+	 * ROLE_2FA_PENDING 권한을 추가하지 않음
+	 */
+	public UserDetails loadUserByUsernameWithoutOtpPending(String username) throws UsernameNotFoundException {
+		Account account = accountMapper.selectAccountById(username).orElseThrow(() -> new UsernameNotFoundException("Not found loginId : " + username));
+		return loadSiteUserByAccount(account);
+	}
+	
 }

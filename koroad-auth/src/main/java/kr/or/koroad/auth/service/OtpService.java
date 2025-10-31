@@ -5,12 +5,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.stereotype.Service;
-
 /**
  * OTP(One-Time Password) 생성 및 검증 서비스
+ * @Service 어노테이션 제거: koroad-auth-security.xml에서 명시적으로 bean 선언
  */
-@Service
 public class OtpService {
 
 	private static final int OTP_LENGTH = 6;
@@ -19,6 +17,12 @@ public class OtpService {
 	
 	// 사용자별 OTP 저장 (실제 운영에서는 Redis나 DB 사용 권장)
 	private final Map<String, OtpData> otpStore = new ConcurrentHashMap<>();
+	
+	// 디버깅: 이 인스턴스가 하나만 생성되는지 확인
+	{
+		System.out.println("=== OtpService 인스턴스 생성 ===");
+		System.out.println("HashCode: " + System.identityHashCode(this));
+	}
 	
 	/**
 	 * OTP 생성
@@ -43,6 +47,9 @@ public class OtpService {
 		System.out.println("사용자: " + username);
 		System.out.println("OTP 코드: " + otpCode);
 		System.out.println("만료 시간: " + otpData.getExpiryTime());
+		System.out.println("OtpService hashCode: " + System.identityHashCode(this));
+		System.out.println("OTP Store 전체: " + otpStore);
+		System.out.println("OTP Store Keys: " + otpStore.keySet());
 		System.out.println("===============");
 		
 		return otpCode;
@@ -55,6 +62,14 @@ public class OtpService {
 	 * @return 검증 성공 여부
 	 */
 	public boolean verifyOtp(String username, String inputOtp) {
+		// 디버깅: otpStore 전체 내용 확인
+		System.out.println("=== OTP 검증 시작 ===");
+		System.out.println("검증 요청 사용자: " + username);
+		System.out.println("입력된 OTP: " + inputOtp);
+		System.out.println("OtpService hashCode: " + System.identityHashCode(this));
+		System.out.println("OTP Store 전체: " + otpStore);
+		System.out.println("OTP Store Keys: " + otpStore.keySet());
+		
 		OtpData otpData = otpStore.get(username);
 		
 		if (otpData == null) {

@@ -155,7 +155,7 @@ public class KoroadAuthController {
     /**
      * OTP 검증 처리
      */
-    @PostMapping("/otp/verify")
+//    @PostMapping("/otp/verify")
     public String verifyOtp(@RequestParam("otpCode") String otpCode,
                            HttpServletRequest request,
                            HttpServletResponse response,

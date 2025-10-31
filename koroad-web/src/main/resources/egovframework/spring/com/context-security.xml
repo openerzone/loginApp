@@ -53,6 +53,15 @@
         <security:csrf />
     </security:http>
 
+    <!-- 공통 메뉴/메인 페이지 등 /cmm/** 보안 설정 (mainPage.do 포함) -->
+    <security:http pattern="/cmm/**"
+                   use-expressions="true"
+                   entry-point-ref="loginUrlAuthenticationEntryPoint">
+        <security:intercept-url pattern="/cmm/**" access="isAuthenticated()" />
+        <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
+        <security:csrf />
+    </security:http>
+
     <!-- 
         추가 보안 규칙 예시:
         

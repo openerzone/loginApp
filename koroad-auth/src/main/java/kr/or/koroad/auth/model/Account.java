@@ -1,9 +1,12 @@
 package kr.or.koroad.auth.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Account {
+public class Account implements Serializable{
 
+	private static final long serialVersionUID = 1L;
+	
 	private String mberId;
 	private String password;
 	private String mberNm;
