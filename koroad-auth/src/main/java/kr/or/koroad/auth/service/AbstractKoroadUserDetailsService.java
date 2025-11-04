@@ -22,8 +22,8 @@ public abstract class AbstractKoroadUserDetailsService implements UserDetailsSer
 		
 		AbstractKoroadUserDetails loadedUser = (AbstractKoroadUserDetails)loadSiteUserByAccount(account);
 		
-		if (loadedUser.isOtpEnabled())
-			loadedUser.addAuthority("ROLE_2FA_PENDING");
+//		if (loadedUser.isOtpEnabled())
+//			loadedUser.addAuthority("ROLE_2FA_PENDING");
 		
 		return loadedUser;
 	}

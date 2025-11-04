@@ -20,6 +20,7 @@
     <!-- 관리자 페이지 보안 설정 (가장 구체적인 패턴) -->
     <security:http pattern="/cop/bbs/*Master*.do" 
                    use-expressions="true" 
+                   authentication-manager-ref="authenticationManager"
                    entry-point-ref="loginUrlAuthenticationEntryPoint">
         <security:intercept-url pattern="/cop/bbs/*Master*.do" access="hasRole('ROLE_ADMIN')" />
         <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
@@ -29,6 +30,7 @@
     <!-- 게시판 공통 관리 보안 설정 -->
     <security:http pattern="/cop/com/*.do" 
                    use-expressions="true" 
+                   authentication-manager-ref="authenticationManager"
                    entry-point-ref="loginUrlAuthenticationEntryPoint">
         <security:intercept-url pattern="/cop/com/*.do" access="isAuthenticated()" />
         <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
@@ -38,6 +40,7 @@
     <!-- 게시판 보안 설정 -->
     <security:http pattern="/cop/bbs/*.do" 
                    use-expressions="true" 
+                   authentication-manager-ref="authenticationManager"
                    entry-point-ref="loginUrlAuthenticationEntryPoint">
         <security:intercept-url pattern="/cop/bbs/*.do" access="isAuthenticated()" />
         <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
@@ -47,6 +50,7 @@
     <!-- 일정관리 보안 설정 -->
     <security:http pattern="/cop/smt/sim/*.do" 
                    use-expressions="true" 
+                   authentication-manager-ref="authenticationManager"
                    entry-point-ref="loginUrlAuthenticationEntryPoint">
         <security:intercept-url pattern="/cop/smt/sim/*.do" access="isAuthenticated()" />
         <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>
@@ -56,6 +60,7 @@
     <!-- 공통 메뉴/메인 페이지 등 /cmm/** 보안 설정 (mainPage.do 포함) -->
     <security:http pattern="/cmm/**"
                    use-expressions="true"
+                   authentication-manager-ref="authenticationManager"
                    entry-point-ref="loginUrlAuthenticationEntryPoint">
         <security:intercept-url pattern="/cmm/**" access="isAuthenticated()" />
         <security:access-denied-handler error-page="/WEB-INF/jsp/cmm/error/accessDenied.jsp"/>

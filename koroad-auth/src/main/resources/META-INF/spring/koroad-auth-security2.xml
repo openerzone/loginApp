@@ -8,15 +8,15 @@
                            http://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- Security Configuration: /auth/** 패턴만 처리 -->
-    <security:http pattern="/auth/**" auto-config="true" use-expressions="true" >
+    <security:http pattern="/auth/**" auto-config="true" use-expressions="true" authentication-manager-ref="authenticationManager">
         <!-- Login Configuration -->
         <security:form-login 
             login-page="/auth/login"
             login-processing-url="/auth/submit"
             username-parameter="username"
             password-parameter="password"
-            authentication-success-handler-ref="signinAuthenticationSuccesshandler" 
-            authentication-failure-handler-ref="signinAuthenticationFailureHandler" />  
+            authentication-success-handler-ref="authenticationSuccessHandler" 
+            authentication-failure-handler-ref="authenticationFailureHandler" />  
 
         <!-- 로그아웃 설정 -->
         <security:logout
@@ -28,28 +28,44 @@
         <!-- 비밀번호 변경 필요 필터 (인증 후 가장 먼저 실행) -->
         <security:custom-filter ref="passwordChangeRequiredFilter" after="BASIC_AUTH_FILTER" />
         
+        <!-- OTP 인증 대기 상태 필터 (비밀번호 변경 필터 이후 실행) 
+        <security:custom-filter ref="otpPendingFilter" before="FILTER_SECURITY_INTERCEPTOR" />
+        -->
                          
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/login" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
-		<security:intercept-url pattern="/auth/otp" access="hasAnyRole('ROLE_2FA_PENDING')" />
+		<security:intercept-url pattern="/auth/otp" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/otp/verify" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp/verify" access="hasAnyRole('ROLE_2FA_PENDING')" method="POST"/>
-		<security:intercept-url pattern="/auth/otp/failure" access="permitAll()" />
-		<!-- <security:intercept-url pattern="/auth/otp/resend" access="isAuthenticated()" /> -->
+		<security:intercept-url pattern="/auth/otp/resend" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/change-password" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/change-password/process" access="isAuthenticated()" />
         <!-- 
         <security:intercept-url pattern="/static/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
 		 -->
-		<security:csrf disabled="true"/>
+		<security:csrf />
     </security:http>
 
-    <!-- Authentication Manager -->
+    <!-- Authentication Manager 
     <security:authentication-manager id="authenticationManager">
-        <security:authentication-provider ref="signinAuthenticationProvider" />
-        <security:authentication-provider ref="otpAuthenticationProvider" />
+        <security:authentication-provider ref="koroadDaoAuthenticationProvider" />
+        <security:authentication-provider ref="koroadOtpAuthenticationProvider" />
+        <security:authentication-provider ref="koroadSsoAuthenticationProvider" />
     </security:authentication-manager>   
+    -->
+
+    <bean id="authenticationManager"
+                class="kr.or.koroad.auth.security.KoroadAuthenticationManager">
+        <constructor-arg>
+            <list>
+                <ref bean="koroadDaoAuthenticationProvider" />
+                <ref bean="koroadOtpAuthenticationProvider" />
+                <ref bean="koroadSsoAuthenticationProvider" />
+            </list>
+        </constructor-arg>
+    </bean>
         
     <!-- EgovPasswordEncoder: EgovFileScrty.encryptPassword 메소드를 사용하는 인코더 -->
 	<bean id="passwordEncoder" class="kr.or.koroad.auth.util.EgovPasswordEncoder" />
@@ -58,23 +74,34 @@
 	<bean id="otpService" class="kr.or.koroad.auth.service.OtpService" scope="singleton" />
 	
 	<!-- Custom AuthenticationProvider: 사용자 ID를 salt로 사용하는 비밀번호 검증 -->
-	<bean id="signinAuthenticationProvider" class="kr.or.koroad.auth.security.provider.SigninAuthenticationProvider">
+	<bean id="koroadDaoAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadDaoAuthenticationProvider">
 		<constructor-arg ref="passwordEncoder" />
 		<property name="userDetailsService" ref="allbaroUserDetailsService" />
 	</bean>
 	
 	<!-- OTP AuthenticationProvider -->
-	<bean id="otpAuthenticationProvider" class="kr.or.koroad.auth.security.provider.OtpAuthenticationProvider">
+	<bean id="koroadOtpAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadOtpAuthenticationProvider">
 		<!-- <property name="userDetailsService" ref="allbaroUserDetailsService" /> -->
 		<property name="otpService" ref="otpService" />
 	</bean>
 	
-	<!-- OTP 인증 필터: 검증 성공 시 최종 핸들러로 이동해야 하므로 customSuccessHandler 사용 -->
-	<bean id="otpAuthenticationFilter" class="kr.or.koroad.auth.security.filter.OtpAuthenticationFilter">
+	<!-- SSO AuthenticationProvider -->
+	<bean id="koroadSsoAuthenticationProvider" class="kr.or.koroad.auth.security.KoroadSsoAuthenticationProvider" />
+	
+	<!-- OTP 인증 필터: 검증 성공 시 최종 핸들러로 이동해야 하므로 finalSuccessHandler 사용 -->
+	<bean id="otpAuthenticationFilter" class="kr.or.koroad.auth.filter.OtpAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager" />
-        <property name="authenticationSuccessHandler" ref="otpAuthenticationSuccesshandler" />
-        <property name="authenticationFailureHandler" ref="otpAuthenticationFailureHandler" />
+        <property name="authenticationSuccessHandler" ref="finalSuccessHandler" />
+        <property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
     </bean>
+	
+	<!-- OTP 인증 대기 상태 필터 -->
+	<bean id="otpPendingFilter" class="kr.or.koroad.auth.filter.OtpPendingFilter">
+		<property name="otpPageUrl" value="/auth/otp" />
+		<property name="otpVerifyUrl" value="/auth/otp/verify" />
+		<property name="otpResendUrl" value="/auth/otp/resend" />
+		<property name="logoutUrl" value="/auth/logout" />
+	</bean>
 	
 	<!-- 비밀번호 변경 필요 필터 -->
 	<bean id="passwordChangeRequiredFilter" class="kr.or.koroad.auth.filter.PasswordChangeRequiredFilter">
@@ -82,25 +109,20 @@
 		<property name="changePasswordProcessUrl" value="/auth/change-password/process" />
 		<property name="logoutUrl" value="/auth/logout" />
 	</bean>
-
-	<bean id="signinAuthenticationSuccesshandler" class="kr.or.koroad.auth.security.handler.SigninAuthenticationSuccesshandler" />
-	
-	<bean id="otpAuthenticationSuccesshandler" class="kr.or.koroad.auth.security.handler.OtpAuthenticationSuccesshandler" />
-	
-	<bean id="ssoAuthenticationSuccessHandler" class="kr.or.koroad.auth.security.handler.SsoAuthenticationSuccessHandler">
-		<property name="customSuccessHandler" ref="customSuccessHandler" />
-	</bean>
-	
-	<bean id="customSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" />
 		
-	<!-- form-login 인증 실패 이후 작업 처리 -->
-	<bean id="signinAuthenticationFailureHandler" class="kr.or.koroad.auth.security.handler.SigninAuthenticationFailureHandler">
-		<property name="userDetailsService" ref="allbaroUserDetailsService" />
+	<!-- Custom AuthenticationSuccessHandler: 인증 성공 후 OTP 화면으로 이동 
+	<bean id="authenticationSuccessHandler" class="kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler">
+		<property name="finalSuccessHandler" ref="finalSuccessHandler" />
+		<property name="otpPageUrl" value="/auth/otp" />
+	</bean>
+	-->
+	<bean id="authenticationSuccessHandler" class="kr.or.koroad.auth.handler.KoroadAuthenticationSuccessHandler">
+		<property name="otpPath" value="/auth/otp" />
 	</bean>
 	
-	<!-- OTP 인증 실패 이후 작업 처리 -->
-	<bean id="otpAuthenticationFailureHandler" class="kr.or.koroad.auth.security.handler.OtpAuthenticationFailureHandler" />
-	
+	<bean id="finalSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" />
+		
+	<!-- Custom AuthenticationFailureHandler: 인증 실패 이후 추가적인 작업 처리 -->
 	<bean id="authenticationFailureHandler" class="kr.or.koroad.auth.handler.KoroadAuthenticationFailureHandler">
 		<property name="changePasswordUrl" value="/auth/change-password" />
 	</bean>

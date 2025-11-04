@@ -219,8 +219,9 @@
             <!-- 히든 필드로 전체 OTP 코드 전송 -->
             <input type="hidden" name="otpCode" id="otpCode">
             
-            <!-- CSRF 토큰 -->
+            <!-- CSRF 토큰 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            -->
             
             <button type="submit" class="btn btn-verify">인증 확인</button>
         </form>

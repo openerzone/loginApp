@@ -131,25 +131,62 @@ public class KoroadAuthController {
     		System.out.println("ROLE_2FA_PENDING 권한 확인됨");
     		
     		// OTP 생성
-    		String username = userDetails.getUsername();
-    		String otpCode = otpService.generateOtp(username);
+//    		String username = userDetails.getUsername();
+    		String otpCode = "123456"; //otpService.generateOtp(username);
     		
     		// 세션에 OTP 인증 대기 상태 저장
-    		HttpSession session = request.getSession();
-    		session.setAttribute("OTP_PENDING_USER", username);
-    		session.setAttribute("OTP_AUTHENTICATED", false);
-    		session.setAttribute("OTP_CODE_FOR_TESTING", otpCode);
+//    		HttpSession session = request.getSession();
+//    		session.setAttribute("OTP_PENDING_USER", username);
+//    		session.setAttribute("OTP_AUTHENTICATED", false);
+//    		session.setAttribute("OTP_CODE_FOR_TESTING", otpCode);
     		
     		model.addAttribute("title", title);
-    		model.addAttribute("username", username);
+//    		model.addAttribute("username", username);
     		model.addAttribute("otpCode", otpCode);
-    		model.addAttribute("infoMessage", "OTP 인증번호가 발송되었습니다.");
+//    		model.addAttribute("infoMessage", "OTP 인증번호가 발송되었습니다.");
     		
     		return "/otp";
     	} else {
     		System.out.println("ROLE_2FA_PENDING not exists - 로그인 페이지로 리다이렉트");
     		return "redirect:/auth/login";
     	}
+    }
+
+    @PostMapping("/otp/failure")
+    public String otpFail(HttpServletRequest request, Model model) {
+    	
+//    	OTP 실패 시 SecurityContextHolder가 비워져 Authentication이 없다.
+    	Boolean error = (Boolean) request.getAttribute("error");
+    	String message = (String) request.getAttribute("message");
+    	
+    	if (error) {
+    		model.addAttribute("errorMessage", message);
+    	}
+    	
+    	// 세션에서 사용자명 가져오기 (Authentication이 없을 수 있음)
+    	//HttpSession session = request.getSession();
+    	//String username = (String) session.getAttribute("OTP_PENDING_USER");
+    	String username = (String) request.getAttribute("username");
+    	
+    	// 세션에 사용자명이 없으면 로그인 페이지로
+    	if (username == null || username.trim().isEmpty()) {
+    		System.out.println("OTP 실패 처리: 세션에 사용자명 없음 - 로그인 페이지로 이동");
+    		return "redirect:/auth/login";
+    	}
+    	
+    	// 새로운 OTP 생성
+    	String otpCode = "123456";//otpService.generateOtp(username);
+		
+		// 세션에 OTP 인증 대기 상태 저장
+//		session.setAttribute("OTP_PENDING_USER", username);
+//		session.setAttribute("OTP_AUTHENTICATED", false);
+//		session.setAttribute("OTP_CODE_FOR_TESTING", otpCode);
+		
+		model.addAttribute("title", title);
+//		model.addAttribute("username", username);
+		model.addAttribute("otpCode", otpCode);
+    	
+    	return "/otp";
     }
     
     /**

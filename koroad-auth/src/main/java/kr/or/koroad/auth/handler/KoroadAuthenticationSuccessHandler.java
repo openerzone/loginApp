@@ -25,10 +25,13 @@ public class KoroadAuthenticationSuccessHandler implements AuthenticationSuccess
 		boolean has2FAPendingRole = authentication.getAuthorities().stream()
 				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_2FA_PENDING"));
 		
-		if (has2FAPendingRole)
+		if (has2FAPendingRole) {
+			authentication.setAuthenticated(false);
 			response.sendRedirect(otpPath);
-		else
+		} else {
 			response.sendRedirect("/cmm/main/mainPage.do");
+		}
+		
 	}
 
 	public void setOtpPath(String otpPath) {

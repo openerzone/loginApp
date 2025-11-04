@@ -13,10 +13,10 @@ public class SsoAuthenticationToken extends AbstractAuthenticationToken{
 	private Object credentials;
 
 	 // 인증 요청 시 사용할 생성자 (principal, credentials)
-    public SsoAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {
+    public SsoAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
         super(authorities); 
         this.principal = principal;
-        this.credentials = null;	//인증 후 비번 제거
+        this.credentials = credentials;	//인증 후 비번 제거
         setAuthenticated(true); // 인증 완료
     }
     

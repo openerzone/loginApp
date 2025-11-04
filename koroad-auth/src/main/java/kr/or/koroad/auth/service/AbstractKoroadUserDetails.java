@@ -67,6 +67,10 @@ public abstract class AbstractKoroadUserDetails implements UserDetails{
 		return true;
 	}
 	
+	public boolean isSsoEnabled() {
+		return true;
+	}
+	
 	@Override
 	public boolean isAccountNonExpired() {
 		// 계정 만료 여부 (true = 만료되지 않음)

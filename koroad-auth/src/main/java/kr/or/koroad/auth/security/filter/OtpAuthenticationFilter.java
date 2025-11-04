@@ -1,10 +1,11 @@
-package kr.or.koroad.auth.filter;
+package kr.or.koroad.auth.security.filter;
 
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -27,15 +28,24 @@ public class OtpAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 		
-		// 1. 현재 SecurityContext에서 1차 인증된 사용자 정보(username) 가져오기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
-		if (authentication == null || //!authentication.isAuthenticated() ||
-				!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_2FA_PENDING"))) {
+		HttpSession session = request.getSession(false);
+		AbstractKoroadUserDetails userDetails = 
+		       (AbstractKoroadUserDetails) session.getAttribute("SIGNIN_USER_DETAILS");
+		   
+		if (userDetails == null) {
+		       // userDetails 사용
 			throw new BadCredentialsException("No pre-authentication found or missing ROLE_2FA_PENDING role");
 		}
+		   
+		// 1. SecurityContextHolder에서 1단계 인증 객체(SigninAuthenticationToken)를 가져오기
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
-		AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails)authentication.getPrincipal();
+//		if (authentication == null || //!authentication.isAuthenticated() ||
+//				!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_2FA_PENDING"))) {
+//			throw new BadCredentialsException("No pre-authentication found or missing ROLE_2FA_PENDING role");
+//		}
+		
+		//AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails)authentication.getPrincipal();
 		String username = userDetails.getUsername();
 		
 		// 2. 요청 파라미터에서 OTP 코드 가져오기
@@ -53,3 +63,4 @@ public class OtpAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 }
+
