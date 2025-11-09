@@ -15,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
+import kr.or.koroad.auth.service.AbstractKoroadUserDetailsService;
 import kr.or.koroad.auth.service.OtpService;
 import kr.or.koroad.auth.util.EgovPasswordEncoder;
 
@@ -59,8 +62,8 @@ public class KoroadAuthController {
 	@Autowired
 	private OtpService otpService;
 	
-//	@Autowired
-//	private kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler otpAuthenticationSuccessHandler;
+	@Autowired
+	private AbstractKoroadUserDetailsService userDetailsService;
 	
 	@Autowired
 	private EgovPasswordEncoder passwordEncoder;
@@ -75,10 +78,11 @@ public class KoroadAuthController {
     /**
      * 로그인 페이지
      */
-    @GetMapping("/login")
-    public String login(@RequestParam(value = "error", required = false) String error,
+    @GetMapping("/signin")
+    public String signin(@RequestParam(value = "error", required = false) String error,
                        @RequestParam(value = "logout", required = false) String logout,
                        @RequestParam(value = "expired", required = false) String expired,
+                       @RequestParam(value = "changed", required = false) String changed,
                        Model model) {
         
         if (error != null) {
@@ -93,13 +97,16 @@ public class KoroadAuthController {
             model.addAttribute("errorMessage", "세션이 만료되었습니다. 다시 로그인해주세요.");
         }
         
+        if (changed != null) {
+            model.addAttribute("successMessage", "비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+        }        
         model.addAttribute("title", title);
         
-        return "/login";
+        return "/signin";
     }
     
-    @PostMapping("/failure")
-    public String loginFail(HttpServletRequest request, Model model) {
+    @PostMapping("/signin/failure")
+    public String signinFail(HttpServletRequest request, Model model) {
     	
     	Boolean error = (Boolean) request.getAttribute("error");
     	String message = (String) request.getAttribute("message");
@@ -110,7 +117,7 @@ public class KoroadAuthController {
     	
     	model.addAttribute("title", title);
     	
-    	return "/login";
+    	return "/signin";
     }
     
     /**
@@ -131,24 +138,16 @@ public class KoroadAuthController {
     		System.out.println("ROLE_2FA_PENDING 권한 확인됨");
     		
     		// OTP 생성
-//    		String username = userDetails.getUsername();
     		String otpCode = "123456"; //otpService.generateOtp(username);
     		
-    		// 세션에 OTP 인증 대기 상태 저장
-//    		HttpSession session = request.getSession();
-//    		session.setAttribute("OTP_PENDING_USER", username);
-//    		session.setAttribute("OTP_AUTHENTICATED", false);
-//    		session.setAttribute("OTP_CODE_FOR_TESTING", otpCode);
     		
     		model.addAttribute("title", title);
-//    		model.addAttribute("username", username);
     		model.addAttribute("otpCode", otpCode);
-//    		model.addAttribute("infoMessage", "OTP 인증번호가 발송되었습니다.");
     		
     		return "/otp";
     	} else {
     		System.out.println("ROLE_2FA_PENDING not exists - 로그인 페이지로 리다이렉트");
-    		return "redirect:/auth/login";
+    		return "redirect:/auth/signin";
     	}
     }
 
@@ -171,146 +170,40 @@ public class KoroadAuthController {
     	// 세션에 사용자명이 없으면 로그인 페이지로
     	if (username == null || username.trim().isEmpty()) {
     		System.out.println("OTP 실패 처리: 세션에 사용자명 없음 - 로그인 페이지로 이동");
-    		return "redirect:/auth/login";
+    		return "redirect:/auth/signin";
     	}
     	
     	// 새로운 OTP 생성
     	String otpCode = "123456";//otpService.generateOtp(username);
 		
-		// 세션에 OTP 인증 대기 상태 저장
-//		session.setAttribute("OTP_PENDING_USER", username);
-//		session.setAttribute("OTP_AUTHENTICATED", false);
-//		session.setAttribute("OTP_CODE_FOR_TESTING", otpCode);
-		
 		model.addAttribute("title", title);
-//		model.addAttribute("username", username);
 		model.addAttribute("otpCode", otpCode);
     	
     	return "/otp";
     }
-    
-    /**
-     * OTP 검증 처리
-     */
-//    @PostMapping("/otp/verify")
-    public String verifyOtp(@RequestParam("otpCode") String otpCode,
-                           HttpServletRequest request,
-                           HttpServletResponse response,
-                           Model model) {
-    	
-    	HttpSession session = request.getSession();
-    	String username = (String) session.getAttribute("OTP_PENDING_USER");
-    	
-    	// OTP 인증 대기 상태가 아니면 로그인 페이지로 리다이렉트
-    	if (username == null) {
-    		return "redirect:/auth/login";
-    	}
-    	
-    	// OTP 검증
-    	boolean isValid = otpService.verifyOtp(username, otpCode);
-    	
-    	if (isValid) {
-    		// OTP 인증 성공
-    		session.setAttribute("OTP_AUTHENTICATED", true);
-    		session.removeAttribute("OTP_PENDING_USER");
-    		session.removeAttribute("OTP_CODE_FOR_TESTING");
-    		
-    		// ROLE_2FA_PENDING 권한 제거
-    		Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-    		AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) currentAuth.getPrincipal();
-    		
-    		// ROLE_2FA_PENDING을 제외한 원래 권한만 유지
-    		List<GrantedAuthority> finalAuthorities = currentAuth.getAuthorities().stream()
-    				.filter(auth -> !auth.getAuthority().equals("ROLE_2FA_PENDING"))
-    				.collect(java.util.stream.Collectors.toList());
-    		
-    		// 최종 인증 객체 생성 (원래 권한만 포함)
-    		Authentication finalAuth = new UsernamePasswordAuthenticationToken(
-    				userDetails,
-    				null,
-    				finalAuthorities
-    		);
-    		
-    		// SecurityContext 업데이트
-    		SecurityContextHolder.getContext().setAuthentication(finalAuth);
-    		
-    		System.out.println("=== OTP 인증 성공 ===");
-    		System.out.println("사용자: " + username);
-    		System.out.println("ROLE_2FA_PENDING 제거됨");
-    		System.out.println("최종 권한: " + finalAuthorities);
-    		
-    		// 최종 AuthenticationSuccessHandler 호출
-    		try {
-    			System.out.println("최종 AuthenticationSuccessHandler 실행");
-//    			otpAuthenticationSuccessHandler.getFinalSuccessHandler()
-//    				.onAuthenticationSuccess(request, response, finalAuth);
-    			return null; // 핸들러가 리다이렉트 처리함
-    		} catch (Exception e) {
-    			System.err.println("최종 핸들러 실행 중 오류 발생: " + e.getMessage());
-    			e.printStackTrace();
-    			// 폴백: 기본 리다이렉트
-    			return "redirect:" + successRedirectPath;
-    		}
-    	} else {
-    		// OTP 인증 실패
-    		String testOtp = (String) session.getAttribute("OTP_CODE_FOR_TESTING");
-    		
-    		model.addAttribute("title", title);
-    		model.addAttribute("username", username);
-    		model.addAttribute("otpCode", testOtp);
-    		model.addAttribute("errorMessage", "인증번호가 올바르지 않습니다. 다시 시도해주세요.");
-    		
-    		return "/otp";
-    	}
-    }
-    
-    /**
-     * OTP 재전송
-     */
-    @PostMapping("/otp/resend")
-    public String resendOtp(HttpServletRequest request, Model model) {
-    	HttpSession session = request.getSession();
-    	String username = (String) session.getAttribute("OTP_PENDING_USER");
-    	
-    	// OTP 인증 대기 상태가 아니면 로그인 페이지로 리다이렉트
-    	if (username == null) {
-    		return "redirect:/auth/login";
-    	}
-    	
-    	// 새로운 OTP 생성 및 발송
-    	String newOtpCode = otpService.resendOtp(username);
-    	
-    	// 테스트용: 세션에 새 OTP 코드 저장
-    	session.setAttribute("OTP_CODE_FOR_TESTING", newOtpCode);
-    	
-    	model.addAttribute("title", title);
-    	model.addAttribute("username", username);
-    	model.addAttribute("otpCode", newOtpCode);
-    	model.addAttribute("successMessage", "인증번호가 재전송되었습니다.");
-    	
-    	return "/otp";
-    }
-    
+
     /**
      * 비밀번호 변경 페이지
+     * TODO 메신저에서 호출이 가능하게 해야 한다.
      */
     @GetMapping("/change-password")
     public String changePasswordPage(Model model) {
+    	
     	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     	
     	// 인증되지 않았으면 로그인 페이지로
     	if (authentication == null || !authentication.isAuthenticated()) {
-    		return "redirect:/auth/login";
+    		return "redirect:/auth/signin";
     	}
     	
     	// ROLE_PASSWORD_CHANGE_REQUIRED 권한 확인
     	boolean isPasswordChangeRequired = authentication.getAuthorities().stream()
     			.anyMatch(auth -> auth.getAuthority().equals("ROLE_PASSWORD_CHANGE_REQUIRED"));
     	
-    	AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) authentication.getPrincipal();
+    	String username = (String) authentication.getPrincipal();
     	
     	model.addAttribute("title", title);
-    	model.addAttribute("username", userDetails.getUsername());
+    	model.addAttribute("username", username);
     	
     	if (isPasswordChangeRequired) {
     		model.addAttribute("infoMessage", "비밀번호가 만료되었습니다. 새로운 비밀번호로 변경해주세요.");
@@ -334,14 +227,15 @@ public class KoroadAuthController {
     	
     	// 인증되지 않았으면 로그인 페이지로
     	if (authentication == null || !authentication.isAuthenticated()) {
-    		return "redirect:/auth/login";
+    		return "redirect:/auth/signin";
     	}
     	
-    	AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails) authentication.getPrincipal();
-    	String username = userDetails.getUsername();
+    	String username = (String) authentication.getPrincipal();
     	
-    	model.addAttribute("title", title);
-    	model.addAttribute("username", username);
+    	UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    	
+//    	model.addAttribute("title", title);
+//    	model.addAttribute("username", username);
     	
     	// 1. 새 비밀번호와 확인 비밀번호 일치 확인
     	if (!newPassword.equals(confirmPassword)) {
@@ -367,29 +261,33 @@ public class KoroadAuthController {
     	System.out.println("비밀번호 변경 성공");
     	
     	// 4. ROLE_PASSWORD_CHANGE_REQUIRED 권한 제거
-    	List<GrantedAuthority> finalAuthorities = authentication.getAuthorities().stream()
-    			.filter(auth -> !auth.getAuthority().equals("ROLE_PASSWORD_CHANGE_REQUIRED"))
-    			.collect(java.util.stream.Collectors.toList());
+//    	List<GrantedAuthority> finalAuthorities = authentication.getAuthorities().stream()
+//    			.filter(auth -> !auth.getAuthority().equals("ROLE_PASSWORD_CHANGE_REQUIRED"))
+//    			.collect(java.util.stream.Collectors.toList());
     	
-    	Authentication finalAuth = new UsernamePasswordAuthenticationToken(
-    			userDetails,
-    			null,
-    			finalAuthorities
-    	);
+//    	Authentication _authentication = new UsernamePasswordAuthenticationToken(
+//    			userDetails,
+//    			null,
+//    			userDetails.getAuthorities()
+//    	);
     	
-    	SecurityContextHolder.getContext().setAuthentication(finalAuth);
+//    	SecurityContextHolder.getContext().setAuthentication(_authentication);
     	
-    	// 5. 최종 핸들러 호출
-    	try {
-    		System.out.println("비밀번호 변경 완료 - 최종 핸들러 실행");
-//    		otpAuthenticationSuccessHandler.getFinalSuccessHandler()
-//    			.onAuthenticationSuccess(request, response, finalAuth);
-    		return null;
-    	} catch (Exception e) {
-    		System.err.println("최종 핸들러 실행 중 오류: " + e.getMessage());
-    		e.printStackTrace();
-    		return "redirect:" + successRedirectPath;
-    	}
+    	new SecurityContextLogoutHandler().logout(request, response, authentication);
+    	
+    	// 변경 완료 후 로그인 페이지로 리다이렉트 (성공 메시지 포함)
+        return "redirect:/auth/signin?changed";
+//    	// 5. 최종 핸들러 호출
+//    	try {
+//    		System.out.println("비밀번호 변경 완료 - 최종 핸들러 실행");
+////    		otpAuthenticationSuccessHandler.getFinalSuccessHandler()
+////    			.onAuthenticationSuccess(request, response, finalAuth);
+//    		return null;
+//    	} catch (Exception e) {
+//    		System.err.println("최종 핸들러 실행 중 오류: " + e.getMessage());
+//    		e.printStackTrace();
+//    		return "redirect:" + successRedirectPath;
+//    	}
     }
     
 }

@@ -2,16 +2,18 @@ package kr.or.koroad.auth.security.provider;
 
 import java.util.Collections;
 
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import kr.or.koroad.auth.security.authentication.SigninAuthenticationToken;
 import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 import kr.or.koroad.auth.util.EgovPasswordEncoder;
 
@@ -31,6 +33,21 @@ public class SigninAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         AbstractKoroadUserDetails userDetails = (AbstractKoroadUserDetails)userDetailsService.loadUserByUsername(username); 
+        
+        // UserDetails 상태 체크 (AccountStatusUserDetailsChecker 로직과 동일)
+        // Spring Security의 DaoAuthenticationProvider가 자동으로 수행하는 체크를 수동으로 수행
+        if (!userDetails.isAccountNonExpired()) {
+            throw new AccountExpiredException("User account has expired");
+        }
+        if (!userDetails.isAccountNonLocked()) {
+            throw new LockedException("User account is locked");
+        }
+        if (!userDetails.isCredentialsNonExpired()) {
+            throw new CredentialsExpiredException("User credentials have expired");
+        }
+        if (!userDetails.isEnabled()) {
+            throw new DisabledException("User account is disabled");
+        }
         
         // 비밀번호 검증
         if (!passwordEncoder.matchesWithSalt(password, userDetails.getPassword(), username)) {

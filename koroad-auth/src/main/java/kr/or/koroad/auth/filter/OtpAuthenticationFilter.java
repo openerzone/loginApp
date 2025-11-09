@@ -20,7 +20,7 @@ import kr.or.koroad.auth.service.AbstractKoroadUserDetails;
 public class OtpAuthenticationFilter extends AbstractAuthenticationProcessingFilter{
 
 	protected OtpAuthenticationFilter() {
-		super(new AntPathRequestMatcher("/auth/otp/verify", "POST"));
+		super(new AntPathRequestMatcher("/auth/otp", "POST"));
 	}
 
 	@Override

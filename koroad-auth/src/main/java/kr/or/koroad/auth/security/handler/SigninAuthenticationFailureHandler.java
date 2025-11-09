@@ -64,7 +64,7 @@ public class SigninAuthenticationFailureHandler implements AuthenticationFailure
 		request.setAttribute("error", true);
 		
 		// 로그인 페이지로 다시 포워딩
-        request.getRequestDispatcher("/auth/failure").forward(request, response);
+        request.getRequestDispatcher("/auth/signin/failure").forward(request, response);
 	}
 	
 	/**
@@ -76,51 +76,21 @@ public class SigninAuthenticationFailureHandler implements AuthenticationFailure
 		
 		// 로그인 시도한 사용자명 가져오기
 		String username = request.getParameter("username");
+	
+		// ROLE_PASSWORD_CHANGE_REQUIRED 권한만 가진 임시 인증 생성
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_PASSWORD_CHANGE_REQUIRED"));
 		
-		if (username == null || username.trim().isEmpty()) {
-			request.setAttribute("error", true);
-			request.setAttribute("message", "사용자명을 확인할 수 없습니다.");
-			request.getRequestDispatcher("/auth/failure").forward(request, response);
-			return;
-		}
+		Authentication tempAuthentication = new UsernamePasswordAuthenticationToken(
+				username,
+				null,
+				authorities
+		);		
+		// SecurityContext에 임시 인증 저장
+		SecurityContextHolder.getContext().setAuthentication(tempAuthentication);
 		
-		try {
-			// UserDetailsService를 통해 사용자 정보 로드
-			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		response.sendRedirect(changePasswordUrl);
 			
-			// ROLE_PASSWORD_CHANGE_REQUIRED 권한만 가진 임시 인증 생성
-			List<GrantedAuthority> authorities = new ArrayList<>();
-			authorities.add(new SimpleGrantedAuthority("ROLE_PASSWORD_CHANGE_REQUIRED"));
-			
-			Authentication tempAuth = new UsernamePasswordAuthenticationToken(
-					userDetails,
-					null,
-					authorities
-			);
-			
-			// SecurityContext에 임시 인증 저장
-			SecurityContextHolder.getContext().setAuthentication(tempAuth);
-			
-			// 세션에도 저장 (세션 유지)
-			HttpSession session = request.getSession(true);
-			session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-			
-			System.out.println("=== 비밀번호 만료 - 임시 인증 생성 ===");
-			System.out.println("사용자: " + username);
-			System.out.println("권한: ROLE_PASSWORD_CHANGE_REQUIRED");
-			System.out.println("비밀번호 변경 페이지로 리다이렉트");
-			
-			// 비밀번호 변경 페이지로 리다이렉트
-			response.sendRedirect(request.getContextPath() + changePasswordUrl);
-			
-		} catch (Exception e) {
-			System.err.println("비밀번호 만료 처리 중 오류: " + e.getMessage());
-			e.printStackTrace();
-			
-			request.setAttribute("error", true);
-			request.setAttribute("message", "비밀번호가 만료되었습니다. 관리자에게 문의하세요.");
-			request.getRequestDispatcher("/auth/failure").forward(request, response);
-		}
 	}
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {

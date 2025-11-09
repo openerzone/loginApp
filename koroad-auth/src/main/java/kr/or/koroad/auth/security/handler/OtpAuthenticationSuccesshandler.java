@@ -28,8 +28,6 @@ public class OtpAuthenticationSuccesshandler implements AuthenticationSuccessHan
 		
 		HttpSession session = request.getSession();
 		session.removeAttribute("SIGNIN_USER_DETAILS");
-		session.removeAttribute("OTP_AUTHENTICATED");
-		session.removeAttribute("OTP_CODE_FOR_TESTING");
 		
 		System.out.println("-----------OTP 성공 : role 제거---------");
 		

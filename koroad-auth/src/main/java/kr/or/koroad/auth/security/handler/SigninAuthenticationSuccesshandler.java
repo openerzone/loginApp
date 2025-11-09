@@ -25,7 +25,7 @@ public class SigninAuthenticationSuccesshandler implements AuthenticationSuccess
 	@Autowired
 	private SsoAuthenticationSuccessHandler ssoAuthenticationSuccessHandler;
 	
-	private String otpPath = "/auth/otp";
+	private String otpUrl = "/auth/otp";
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -57,7 +57,7 @@ public class SigninAuthenticationSuccesshandler implements AuthenticationSuccess
 	        HttpSession session = request.getSession();
 	        session.setAttribute("SIGNIN_USER_DETAILS", userDetails);
 	        
-			response.sendRedirect(otpPath);
+			response.sendRedirect(otpUrl);
 		} else {
 			this.ssoAuthenticationSuccessHandler.onAuthenticationSuccess(request, response, authentication);
 		}

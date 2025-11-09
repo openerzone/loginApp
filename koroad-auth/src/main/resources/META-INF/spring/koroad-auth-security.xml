@@ -11,8 +11,8 @@
     <security:http pattern="/auth/**" auto-config="true" use-expressions="true" >
         <!-- Login Configuration -->
         <security:form-login 
-            login-page="/auth/login"
-            login-processing-url="/auth/submit"
+            login-page="/auth/signin"
+            login-processing-url="/auth/signin"
             username-parameter="username"
             password-parameter="password"
             authentication-success-handler-ref="signinAuthenticationSuccesshandler" 
@@ -30,14 +30,14 @@
         
                          
 		<!-- URL Pattern Access Control -->
-		<security:intercept-url pattern="/auth/login" access="permitAll()" />
+		<security:intercept-url pattern="/auth/signin" access="permitAll()" />
 		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp" access="hasAnyRole('ROLE_2FA_PENDING')" />
 		<security:intercept-url pattern="/auth/otp/verify" access="hasAnyRole('ROLE_2FA_PENDING')" method="POST"/>
 		<security:intercept-url pattern="/auth/otp/failure" access="permitAll()" />
 		<!-- <security:intercept-url pattern="/auth/otp/resend" access="isAuthenticated()" /> -->
-		<security:intercept-url pattern="/auth/change-password" access="isAuthenticated()" />
-		<security:intercept-url pattern="/auth/change-password/process" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/change-password" access="hasAnyRole('ROLE_PASSWORD_CHANGE_REQUIRED')" />
+		<security:intercept-url pattern="/auth/change-password/process" access="hasAnyRole('ROLE_PASSWORD_CHANGE_REQUIRED')" />
         <!-- 
         <security:intercept-url pattern="/static/**" access="permitAll()" />
 		<security:intercept-url pattern="/**" access="permitAll()" />
@@ -107,6 +107,6 @@
 
 	<bean id="logoutSuccessHandler" 
 	      class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
-	    <property name="defaultTargetUrl" value="/auth/login?logout" />
+	    <property name="defaultTargetUrl" value="/auth/signin?logout" />
 	</bean>
 </beans>
