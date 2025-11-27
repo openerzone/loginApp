@@ -18,7 +18,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
     
 	private static final Logger LOGGER = LoggerFactory.getLogger(EgovAtchFileIdPropertyEditor.class);
 	
-    private String defaultTargetUrl;
+//    private String defaultTargetUrl;
     
     @Override
     public void onLogoutSuccess(HttpServletRequest request, 
@@ -26,6 +26,8 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
                                 Authentication authentication) 
             throws IOException, ServletException {
         
+    	System.out.println("-------------CustomLogoutSuccessHandler---------------");
+    	
         // 1. 로그아웃 이력 저장
         if (authentication != null) {
         	LOGGER.info("User logged out: {}", authentication.getName());
@@ -43,10 +45,10 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
             "성공적으로 로그아웃되었습니다.");
         
         // 4. 리다이렉트
-        response.sendRedirect(request.getContextPath() + defaultTargetUrl);
+        response.sendRedirect("/auth/signin?logout");
     }
     
-    public void setDefaultTargetUrl(String defaultTargetUrl) {
-        this.defaultTargetUrl = defaultTargetUrl;
-    }
+//    public void setDefaultTargetUrl(String defaultTargetUrl) {
+//        this.defaultTargetUrl = defaultTargetUrl;
+//    }
 }

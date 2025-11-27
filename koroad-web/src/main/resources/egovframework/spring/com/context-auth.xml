@@ -12,23 +12,26 @@
     -->
 
     <!-- 커스텀 인증 성공 핸들러 -->
-    <bean id="customAuthenticationSuccessHandler" 
+    <bean id="customLoginSuccessHandler" 
           class="egovframework.com.auth.CustomAuthenticationSuccessHandler">
         <!-- 추가 프로퍼티가 있다면 여기서 설정 -->
     </bean>
 
+	<bean id="customLogoutHandler"
+		class="egovframework.com.auth.CustomLogoutSuccessHandler" />
+		
     <!-- 
         koroad-auth의 authenticationSuccessHandler 빈을 재정의하여
         finalSuccessHandler를 주입합니다.
         
         주의: 이 빈은 koroad-auth-security.xml의 authenticationSuccessHandler를
         오버라이드하므로, 빈 이름이 동일해야 합니다.
-    -->
     <bean id="authenticationSuccessHandler" 
           class="kr.or.koroad.auth.handler.OtpAuthenticationSuccessHandler">
         <property name="otpPageUrl" value="/auth/otp" />
-        <property name="finalSuccessHandler" ref="customAuthenticationSuccessHandler" />
+        <property name="finalSuccessHandler" ref="customLoginSuccessHandler" />
     </bean>
+    -->
 
     <!-- 
         사용 예시:

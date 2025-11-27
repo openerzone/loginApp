@@ -90,7 +90,7 @@
     <!-- 로그인 페이지로 리다이렉트하는 AuthenticationEntryPoint -->
     <bean id="loginUrlAuthenticationEntryPoint" 
           class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <constructor-arg value="/auth/login" />
+        <constructor-arg value="/auth/signin" />
     </bean>
 
     <!-- REST API용 401 응답을 반환하는 AuthenticationEntryPoint (예시) -->

@@ -20,8 +20,8 @@
 
         <!-- 로그아웃 설정 -->
         <security:logout
-            logout-url="/auth/logout"      
-            success-handler-ref="logoutSuccessHandler" />
+            logout-url="/auth/signout"      
+            success-handler-ref="signoutSuccessHandler" />
         
         <security:custom-filter ref="otpAuthenticationFilter" before="FORM_LOGIN_FILTER" />
         
@@ -31,7 +31,7 @@
                          
 		<!-- URL Pattern Access Control -->
 		<security:intercept-url pattern="/auth/signin" access="permitAll()" />
-		<security:intercept-url pattern="/auth/logout" access="isAuthenticated()" />
+		<security:intercept-url pattern="/auth/signout" access="isAuthenticated()" />
 		<security:intercept-url pattern="/auth/otp" access="hasAnyRole('ROLE_2FA_PENDING')" />
 		<security:intercept-url pattern="/auth/otp/verify" access="hasAnyRole('ROLE_2FA_PENDING')" method="POST"/>
 		<security:intercept-url pattern="/auth/otp/failure" access="permitAll()" />
@@ -80,7 +80,7 @@
 	<bean id="passwordChangeRequiredFilter" class="kr.or.koroad.auth.filter.PasswordChangeRequiredFilter">
 		<property name="changePasswordUrl" value="/auth/change-password" />
 		<property name="changePasswordProcessUrl" value="/auth/change-password/process" />
-		<property name="logoutUrl" value="/auth/logout" />
+		<property name="logoutUrl" value="/auth/signout" />
 	</bean>
 
 	<bean id="signinAuthenticationSuccesshandler" class="kr.or.koroad.auth.security.handler.SigninAuthenticationSuccesshandler" />
@@ -88,10 +88,10 @@
 	<bean id="otpAuthenticationSuccesshandler" class="kr.or.koroad.auth.security.handler.OtpAuthenticationSuccesshandler" />
 	
 	<bean id="ssoAuthenticationSuccessHandler" class="kr.or.koroad.auth.security.handler.SsoAuthenticationSuccessHandler">
-		<property name="customSuccessHandler" ref="customSuccessHandler" />
+		<property name="customSuccessHandler" ref="customLoginSuccessHandler" />
 	</bean>
 	
-	<bean id="customSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" />
+	<bean id="customLoginSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" />
 		
 	<!-- form-login 인증 실패 이후 작업 처리 -->
 	<bean id="signinAuthenticationFailureHandler" class="kr.or.koroad.auth.security.handler.SigninAuthenticationFailureHandler">
@@ -105,7 +105,12 @@
 		<property name="changePasswordUrl" value="/auth/change-password" />
 	</bean>
 
-	<bean id="logoutSuccessHandler" 
+	<bean id="signoutSuccessHandler" 
+	      class="kr.or.koroad.auth.security.handler.SignoutSuccessHandler">
+	    <property name="customLogoutHandler" ref="customLogoutHandler" />
+	</bean>
+
+	<bean id="customLogoutHandler" 
 	      class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
 	    <property name="defaultTargetUrl" value="/auth/signin?logout" />
 	</bean>

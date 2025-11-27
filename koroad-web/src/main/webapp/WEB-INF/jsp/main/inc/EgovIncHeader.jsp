@@ -59,7 +59,7 @@
 	        <li class="righttop_bgright">&nbsp;</li>
 	    </ul>
 	    <!-- 로그아웃 폼 -->
-	    <form id="logout-form" action="<c:url value='/auth/logout'/>" method="POST" style="display:none;">
+	    <form id="logout-form" action="<c:url value='/auth/signout'/>" method="POST" style="display:none;">
 	        <sec:csrfInput/>
 	    </form>
     </sec:authorize>    
